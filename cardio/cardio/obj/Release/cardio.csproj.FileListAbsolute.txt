@@ -1,0 +1,17 @@
+C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\bin\Release\cardio.exe.manifest
+C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\bin\Release\cardio.application
+C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\bin\Release\cardio.exe
+C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\bin\Release\cardio.pdb
+C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\bin\Release\FirstFloor.ModernUI.dll
+C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\bin\Release\FirstFloor.ModernUI.xml
+C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\obj\Release\MainWindow.baml
+C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\obj\Release\App.baml
+C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\obj\Release\MainWindow.g.cs
+C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\obj\Release\App.g.cs
+C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\obj\Release\cardio_MarkupCompile.cache
+C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\obj\Release\cardio.g.resources
+C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\obj\Release\cardio.exe.manifest
+C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\obj\Release\cardio.application
+C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\obj\Release\cardio.exe
+C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\obj\Release\cardio.pdb
+C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\obj\Release\cardio.csprojResolveAssemblyReference.cache

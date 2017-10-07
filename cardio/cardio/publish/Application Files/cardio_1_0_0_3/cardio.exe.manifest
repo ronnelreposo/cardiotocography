@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<asmv1:assembly xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" manifestVersion="1.0" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2">
+  <asmv1:assemblyIdentity name="cardio.exe" version="1.0.0.3" publicKeyToken="42232c4e721435c7" language="neutral" processorArchitecture="msil" type="win32" />
+  <application />
+  <entryPoint>
+    <assemblyIdentity name="cardio" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
+    <commandLine file="cardio.exe" parameters="" />
+  </entryPoint>
+  <trustInfo>
+    <security>
+      <applicationRequestMinimum>
+        <PermissionSet Unrestricted="true" ID="Custom" SameSite="site" />
+        <defaultAssemblyRequest permissionSetReference="Custom" />
+      </applicationRequestMinimum>
+      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
+        <!--
+          UAC Manifest Options
+          If you want to change the Windows User Account Control level replace the 
+          requestedExecutionLevel node with one of the following.
+
+        <requestedExecutionLevel  level="asInvoker" uiAccess="false" />
+        <requestedExecutionLevel  level="requireAdministrator" uiAccess="false" />
+        <requestedExecutionLevel  level="highestAvailable" uiAccess="false" />
+
+         If you want to utilize File and Registry Virtualization for backward 
+         compatibility then delete the requestedExecutionLevel node.
+    -->
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+  <dependency>
+    <dependentOS>
+      <osVersionInfo>
+        <os majorVersion="5" minorVersion="1" buildNumber="2600" servicePackMajor="0" />
+      </osVersionInfo>
+    </dependentOS>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="preRequisite" allowDelayedBinding="true">
+      <assemblyIdentity name="Microsoft.Windows.CommonLanguageRuntime" version="4.0.30319.0" />
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="cardio.exe" size="26536">
+      <assemblyIdentity name="cardio" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>ea7SJD2qgYuoW0AaMCeGxL/ArGJE1JExtBCqeT4HsK8=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="FirstFloor.ModernUI.dll" size="250368">
+      <assemblyIdentity name="FirstFloor.ModernUI" version="1.0.9.0" publicKeyToken="BC9B0C37BF06C6A9" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>mkKTxnIqd2UNnRYjll1BIWL6DTxh62bXls4tAMn6j7Y=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+<publisherIdentity name="CN=Arya-PC\Arya" issuerKeyHash="5ac1cfdda9eb8633ab03936ecdff1428efa37a62" /><Signature Id="StrongNameSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha256" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" /><DigestValue>a7EN8h9jcUKHXgy5Zs9pUJOiY7MBaJ3/u/vkEYrCp10=</DigestValue></Reference></SignedInfo><SignatureValue>tvn1kYcgl/Gj5jMmn6xEfCGLWD3vE84wTxy9NPgDtOrXxt9IfvZwysg+3M158aw8Xqj+ZcIrep9BB25+XpyptkIY2fUlTjEbruBE/oB4oXvjfx2FEnKsnxUHyO0VcqnsjgfkdhQJuSYuAC357aUp/h8vKFRF7rJkFZxBUQOzIxA=</SignatureValue><KeyInfo Id="StrongNameKeyInfo"><KeyValue><RSAKeyValue><Modulus>yuoO+bvTPUHXFTxWsNZJWZRXtkHDWIBPEptZwz9W5L6FnfovLIkF+AYWNvwBcrIaf3b6X6ZXYtRDm3AXslqRTJfY6cpunidB9MUbi/55epEe9j6diTUgkj7jcgoLSA+yXq7XfdhYMsJeyYThosG/VCA8YD38xj4EviHsLr63g2k=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><msrel:RelData xmlns:msrel="http://schemas.microsoft.com/windows/rel/2005/reldata"><r:license xmlns:r="urn:mpeg:mpeg21:2003:01-REL-R-NS" xmlns:as="http://schemas.microsoft.com/windows/pki/2005/Authenticode"><r:grant><as:ManifestInformation Hash="5da7c28a11e4fbbbff9d6801b363a2935069cf66b90c5e874271631ff20db16b" Description="" Url=""><as:assemblyIdentity name="cardio.exe" version="1.0.0.3" publicKeyToken="42232c4e721435c7" language="neutral" processorArchitecture="msil" type="win32" /></as:ManifestInformation><as:SignedBy /><as:AuthenticodePublisher><as:X509SubjectName>CN=Arya-PC\Arya</as:X509SubjectName></as:AuthenticodePublisher></r:grant><r:issuer><Signature Id="AuthenticodeSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha256" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" /><DigestValue>HxRjP01X5vawB1IDgX0ur375p/J1s+QZoV2d7M/9dXA=</DigestValue></Reference></SignedInfo><SignatureValue>yM3PDbVN2tlOxP4QjBamYKTkFh1M7g+5eFHUDOL15Azi6Qh9L/tnQKn3RjqOwXy2UVFUnZXkL6OsU05jbQUlq8QY/RfDGWhGnGTs4ckSn9lj2+O8C3z0+DXyWHNY1oMW13dl8+sbeeokaqfpfZ6+OxCjWhpzLejFEExjexXQTuE=</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>yuoO+bvTPUHXFTxWsNZJWZRXtkHDWIBPEptZwz9W5L6FnfovLIkF+AYWNvwBcrIaf3b6X6ZXYtRDm3AXslqRTJfY6cpunidB9MUbi/55epEe9j6diTUgkj7jcgoLSA+yXq7XfdhYMsJeyYThosG/VCA8YD38xj4EviHsLr63g2k=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>MIIByTCCATKgAwIBAgIQZXpIX/ntxrhD4GPALLsUSjANBgkqhkiG9w0BAQsFADAjMSEwHwYDVQQDHhgAQQByAHkAYQAtAFAAQwBcAEEAcgB5AGEwHhcNMTcwNjA3MTk0NzI4WhcNMTgwNjA4MDE0NzI4WjAjMSEwHwYDVQQDHhgAQQByAHkAYQAtAFAAQwBcAEEAcgB5AGEwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMrqDvm70z1B1xU8VrDWSVmUV7ZBw1iATxKbWcM/VuS+hZ36LyyJBfgGFjb8AXKyGn92+l+mV2LUQ5twF7JakUyX2OnKbp4nQfTFG4v+eXqRHvY+nYk1IJI+43IKC0gPsl6u133YWDLCXsmE4aLBv1QgPGA9/MY+BL4h7C6+t4NpAgMBAAEwDQYJKoZIhvcNAQELBQADgYEAPFoj/K/JLGTtFiP3YOQsssXi1zCYa+WKqxWovEZPbG2Ose5sPTWLFaJRdYwl24/ogA5CdiTMT5K3ppFHGqO9wfdutR24MCQVqWg7Im1ixY+EyVbqfIRfUBHRyujMTO5Hsd2P3DI1W1XvuqtCyO/o3pq5Nmhff49MyGE13LRqy04=</X509Certificate></X509Data></KeyInfo></Signature></r:issuer></r:license></msrel:RelData></KeyInfo></Signature></asmv1:assembly>
