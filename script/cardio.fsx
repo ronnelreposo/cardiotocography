@@ -1,18 +1,15 @@
 ﻿
-///Naive Transpose Matrix.
-let transpose mss =
- let rec combine xss yss =
-  match xss, yss with
-  | [], [] -> []
-  | [], yshd::ystl -> yss
-  | xshd::xstl, [] -> xss
-  | xshd::xstl, yshd::ystl -> ((xshd.Head)::yshd)::(combine xstl ystl)
- let rec transform reduction mss =
-  match mss with
-  | [] -> []
-  | msshd::msstl ->
-   reduction (List.windowed 1 msshd) (transform reduction msstl)
- transform combine mss
+/// Matrix Transpose.
+let transpose xss =
+ let rec f xss acc =
+  match xss with
+  | [] -> failwith "xss must not contain empty vectors."
+  | hd::_ ->
+   match hd with
+   | [] -> List.rev acc
+   | _ ->
+    f <| List.map (List.skip 1) xss <| (List.map List.head xss)::acc
+ f xss List.empty
 
 ///Operation of two Vectors.
 let vecOp f xs ys =
