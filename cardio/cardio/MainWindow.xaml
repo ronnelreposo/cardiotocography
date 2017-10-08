@@ -57,7 +57,7 @@
         <TextBox x:Name="ds_tb" Grid.Column="3" HorizontalAlignment="Left" Height="23" Grid.Row="6" VerticalAlignment="Top" Width="100"/>
         <TextBox x:Name="dp_tb" Grid.Column="3" HorizontalAlignment="Left" Height="23" Grid.Row="7" VerticalAlignment="Top" Width="100"/>
 
-        <Button x:Name="classify_button" Content="Classify" Grid.Column="3" Grid.Row="8" Click="classify_button_Click"/>
+        <Button x:Name="classify_button" Content="Classify" Grid.Column="3" Grid.Row="8" />
 
         <TextBlock Grid.Column="5" Grid.Row="1" Text="Calm Sleep | A:" TextAlignment="Right" />
         <TextBlock Grid.Column="5" Grid.Row="2" Text="REM Sleep | B:" TextAlignment="Right" />
