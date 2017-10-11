@@ -134,14 +134,11 @@ let rec train
  =
  let trainOnce = feedForward >> backPropagate
  let rms network =
-  let mapSquare   = List.map (fun x -> (*) x x )
-  let err         = List.map2 (-)
-  let half        = (*) 0.5
-  (err network.TargetOutputs network.Outputs)
-  |> mapSquare
+  (List.map2 (-) network.TargetOutputs network.Outputs)
+  |> List.map square
   |> List.average
   |> sqrt
-  |> half
+  |> (*) 0.5
 
  match epoch with
  | 0 -> netAcc
