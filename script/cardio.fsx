@@ -54,10 +54,13 @@ let rec shuffleList count (sysRand:System.Random) (xs:List<'a>) =
   let randomxs = List.append (item::b) (List.rev c)
   shuffleList ((-) count 1) sysRand randomxs
 
-let rec dataAtIndex  xs_data xs_index =
- match xs_index with
- | [] -> []
- | hd::tl -> (List.item hd xs_data)::(dataAtIndex xs_data tl)
+/// Retrieves the value of data on a list given the list of index.
+let dataAtIndex  xs_data xs_index =
+ let rec f data_xs index_xs acc =
+  match index_xs with
+  | [] -> List.rev acc
+  | hd::tl -> (f data_xs tl ((List.item hd data_xs)::acc))
+ f xs_data xs_index List.empty
 
 let rec f1 mapper x ys = List.map (mapper x) ys
 let rec f2 mapper xs ys = //***normalize
