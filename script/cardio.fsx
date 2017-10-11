@@ -64,6 +64,7 @@ let dataAtIndex  xs_data xs_index =
 
 /// Maps a scalar to a vector using a mapper function.
 let scalarToVecOp mapper x ys = List.map (mapper x) ys
+
 let rec f2 mapper xs ys = //***normalize
  match xs with
  | [] -> []
@@ -74,7 +75,10 @@ let mulVectors xs ys    = List.map2 (*) xs ys
 let addVectors xs ys    = List.map2 (+) xs ys
 let logSigmoid x        = (/) 1.0 ((+) 1.0 (exp -x))
 let dervLogSigmoid x    = (*) x ((-) 1.0 x)
-let dervTanH x          = (*) (1.0 - x) (1.0 + x)
+
+/// Derivative of TanH i.e. sec^2h.
+let deltaTanH x = (/) 1.0 <| (*) (cosh x) (cosh x)
+
 let gradient dFunc output target = (*) (dFunc output) ((-) target output)
 
 let weightedSum inputs weights bias =
@@ -113,7 +117,7 @@ let feedForward net =
 
 let backPropagate net =
 
- let out_grads = List.map2 (gradient dervTanH) net.Outputs net.TargetOutputs
+ let out_grads = List.map2 (gradient deltaTanH) net.Outputs net.TargetOutputs
  let out_deltas = deltas net.N out_grads net.HiddenNetOutputs
  let out_prevDeltasWithM = List.map (sclarVectorMul net.M) net.OutputPrevDeltas
  let out_newDeltas = List.map2 addVectors out_deltas out_prevDeltasWithM
@@ -123,7 +127,7 @@ let backPropagate net =
  let out_bias_newDeltas = addVectors out_bias_deltas out_bias_prevDeltasWithM
  let out_bias_update = addVectors net.OutputBias out_bias_newDeltas
  
- let hid_grads = mulVectors (List.map dervTanH net.HiddenNetOutputs) (List.map (dotProduct out_grads) (transpose net.HiddenToOutputWeights))
+ let hid_grads = mulVectors (List.map deltaTanH net.HiddenNetOutputs) (List.map (dotProduct out_grads) (transpose net.HiddenToOutputWeights))
  let hid_deltas = deltas net.N hid_grads net.Inputs
  let hid_prevDeltasWithM = List.map (sclarVectorMul net.M) net.HiddenPrevDeltas
  let hid_newDeltas = List.map2 addVectors hid_deltas hid_prevDeltasWithM
@@ -221,7 +225,7 @@ let teaching_inputs = [| [ 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 1.0; 0.0; 0.0
 let testing_samples = [| [ 0.692; 0.000; 0.000; 0.174; 0.000; 0.000; 0.000; ] |]
 let teaching_samples_inputs = [| [ 1.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 1.0; 0.0; 0.0;  ] |]
 
-let epoch = 1
+let epoch = 100
 
 let trained =
  train
