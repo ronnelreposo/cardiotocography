@@ -56,6 +56,11 @@ let logSigmoid x        = (/) 1.0 ((+) 1.0 (exp -x))
 let dervLogSigmoid x    = (*) x ((-) 1.0 x)
 let dervTanH x          = (*) (1.0 - x) (1.0 + x)
 let gradient dFunc output target = (*) (dFunc output) ((-) target output)
+
+
+let dotProduct xs ys = mulVectors xs ys |> List.sum
+
+
 let weightedSum inputs weights bias =
     addVectors bias (List.map (fun xs -> mulVectors inputs xs |> List.sum) weights)
 let deltas N gradients net_outputs = List.map (sclarVectorMul N) (f2 (*) gradients net_outputs)
@@ -166,20 +171,19 @@ let rec train
 //  if epoch % 100 = 0 then printfn "%f %f" rms_trained_err rms_validated_err
   printfn "%f %f" rms_trained_err rms_validated_err
   
-//  let best_trained_err = 0.042608
-//  let best_test_err = 0.029610
-//  let best_trained_err = 0.029673
-//  let best_test_err = 0.028605
   let best_trained_err = 0.019999 //*** CONSIDER PASSING TO PARAMETER.
   let best_test_err = 0.019999
-  if ((rms_trained_err < best_trained_err) && (rms_validated_err < best_test_err)) then trained
+  let errTresholdMeet = (rms_trained_err < best_trained_err) && (rms_validated_err < best_test_err)
+  if errTresholdMeet then trained
   else train ((-) epoch 1) trained (training_samples, teaching_inputs) (testing_samples, teaching_testing_inputs)
-
 //  train
 //   ((-) epoch 1)
 //   trained
 //   (training_samples, teaching_inputs)
-//   (testing_samples, teaching_testing_inputs) 
+//   (testing_samples, teaching_testing_inputs)
+/// end train f.
+
+
 
 let inputSize = 7;
 let hiddenSize = 10;
@@ -188,14 +192,12 @@ let outputSize = 13;
 let rec genWeights (rand:System.Random) count =
  match count with
  | 0 -> []
- | _ ->
-  rand.NextDouble()
-  ::(genWeights rand ((-) count 1))
+ | _ -> rand.NextDouble()::(genWeights rand ((-) count 1))
 let genRandWeights = genWeights (System.Random())
 
 let network = {
  N = 0.001
- M = 0.5
+ M = 0.9
  Inputs = List.replicate inputSize 0.0
  InputToHiddenWeights = List.chunkBySize inputSize (genRandWeights ((*) inputSize hiddenSize))
  HiddenBias = genRandWeights hiddenSize
@@ -4221,8 +4223,6 @@ let teaching_samples_inputs = [|
  [ 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 1.0; 0.0; 0.0; 0.0; 1.0; 0.0; 0.0;  ] |]
 
 let epoch = 10000
-
-
 
 let trained =
  train
