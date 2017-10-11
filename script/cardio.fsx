@@ -25,6 +25,7 @@ let vecDotVec (acc:float) xs ys =
     | a::b, c::d -> vecOp (*) xs ys |> List.sum
     | _, _ -> acc 
 
+///Naive Shuffle List.
 let rec shuffleList count (sysRand:System.Random) (xs:List<'a>) =
  match count with
  | 0 -> xs
@@ -39,16 +40,15 @@ let rec shuffleList count (sysRand:System.Random) (xs:List<'a>) =
 let rec dataAtIndex  xs_data xs_index =
  match xs_index with
  | [] -> []
- | hd::tl ->
-  (List.item hd xs_data)::(dataAtIndex xs_data tl)
+ | hd::tl -> (List.item hd xs_data)::(dataAtIndex xs_data tl)
 
 let rec f1 mapper x ys = List.map (mapper x) ys
 let rec f2 mapper xs ys = //***normalize
-    match xs with
-    | [] -> []
-    | hd::tl ->
-        (f1 mapper hd ys)::(f2 mapper tl ys)
+ match xs with
+ | [] -> []
+ | hd::tl -> (f1 mapper hd ys)::(f2 mapper tl ys)
 
+let square x = x * x
 let sclarVectorMul x ys = f1 (*) x ys
 let mulVectors xs ys    = List.map2 (*) xs ys
 let addVectors xs ys    = List.map2 (+) xs ys
@@ -56,14 +56,13 @@ let logSigmoid x        = (/) 1.0 ((+) 1.0 (exp -x))
 let dervLogSigmoid x    = (*) x ((-) 1.0 x)
 let dervTanH x          = (*) (1.0 - x) (1.0 + x)
 let gradient dFunc output target = (*) (dFunc output) ((-) target output)
-
-
 let dotProduct xs ys = mulVectors xs ys |> List.sum
 
-
 let weightedSum inputs weights bias =
-    addVectors bias (List.map (fun xs -> mulVectors inputs xs |> List.sum) weights)
-let deltas N gradients net_outputs = List.map (sclarVectorMul N) (f2 (*) gradients net_outputs)
+ addVectors bias (List.map (dotProduct inputs) weights)
+
+let deltas N gradients net_outputs =
+ List.map (sclarVectorMul N) (f2 (*) gradients net_outputs)
 
 type Network = {
  N:float
@@ -176,12 +175,6 @@ let rec train
   let errTresholdMeet = (rms_trained_err < best_trained_err) && (rms_validated_err < best_test_err)
   if errTresholdMeet then trained
   else train ((-) epoch 1) trained (training_samples, teaching_inputs) (testing_samples, teaching_testing_inputs)
-//  train
-//   ((-) epoch 1)
-//   trained
-//   (training_samples, teaching_inputs)
-//   (testing_samples, teaching_testing_inputs)
-/// end train f.
 
 
 
