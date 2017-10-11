@@ -62,13 +62,13 @@ let dataAtIndex  xs_data xs_index =
   | hd::tl -> (f data_xs tl ((List.item hd data_xs)::acc))
  f xs_data xs_index List.empty
 
-let rec f1 mapper x ys = List.map (mapper x) ys
+let rec scalarToVecOp mapper x ys = List.map (mapper x) ys
 let rec f2 mapper xs ys = //***normalize
  match xs with
  | [] -> []
- | hd::tl -> (f1 mapper hd ys)::(f2 mapper tl ys)
+ | hd::tl -> (scalarToVecOp mapper hd ys)::(f2 mapper tl ys)
 
-let sclarVectorMul x ys = f1 (*) x ys
+let sclarVectorMul x ys = scalarToVecOp (*) x ys
 let mulVectors xs ys    = List.map2 (*) xs ys
 let addVectors xs ys    = List.map2 (+) xs ys
 let logSigmoid x        = (/) 1.0 ((+) 1.0 (exp -x))
