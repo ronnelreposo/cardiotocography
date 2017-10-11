@@ -27,6 +27,14 @@ let dotProduct xs ys =
 
 let square x = x * x
 
+let distance xs ys =
+  (List.map2 (-) xs ys)
+  |> List.map square
+  |> List.average
+  |> sqrt
+  |> (*) 0.5
+
+/// Euclid Norm.
 let rec norm xs =
  let rec f xs acc =
   match xs with
@@ -140,12 +148,8 @@ let rec train
  ((testing_samples:List<List<float>>), (teaching_testing_inputs:List<List<float>>))
  =
  let trainOnce = feedForward >> backPropagate
- let rms network =
-  (List.map2 (-) network.TargetOutputs network.Outputs)
-  |> List.map square
-  |> List.average
-  |> sqrt
-  |> (*) 0.5
+
+ let networkDistance network = distance network.TargetOutputs network.Outputs
 
  match epoch with
  | 0 -> netAcc
@@ -166,10 +170,10 @@ let rec train
   let shuffled_testing_i = dataAtIndex teaching_testing_inputs testing_rand_index
 
   let trained = List.fold2 (funcNet trainOnce) netAcc shuffled_training_s shuffled_training_i
-  let rms_trained_err = rms trained
+  let rms_trained_err = networkDistance trained
 
   let validated = List.fold2 (funcNet feedForward) netAcc shuffled_testing_s shuffled_testing_i
-  let rms_validated_err = rms validated
+  let rms_validated_err = networkDistance validated
 
 //  if epoch % 100 = 0 then printfn "%f %f" rms_trained_err rms_validated_err
   printfn "%f %f" rms_trained_err rms_validated_err
@@ -179,7 +183,6 @@ let rec train
   let errTresholdMeet = (rms_trained_err < best_trained_err) && (rms_validated_err < best_test_err)
   if errTresholdMeet then trained
   else train ((-) epoch 1) trained (training_samples, teaching_inputs) (testing_samples, teaching_testing_inputs)
-
 
 
 let inputSize = 7;
@@ -214,7 +217,7 @@ let teaching_inputs = [| [ 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 1.0; 0.0; 0.0
 let testing_samples = [| [ 0.692; 0.000; 0.000; 0.174; 0.000; 0.000; 0.000; ] |]
 let teaching_samples_inputs = [| [ 1.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 1.0; 0.0; 0.0;  ] |]
 
-let epoch = 10000
+let epoch = 1
 
 let trained =
  train
