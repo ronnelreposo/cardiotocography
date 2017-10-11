@@ -19,11 +19,8 @@ let vecOp f xs ys =
  | a::b, [] -> xs
  | a::b, c::d -> List.map2 f xs ys
 
-///The Dot Product of two Vectors.
-let dotProduct xs ys =
- match xs, ys with
- | a::b, c::d -> vecOp (*) xs ys |> List.sum
- | _, _ -> 0.0
+/// The Dot Product of xs and ys.
+let dot xs ys = List.map2 (*) xs ys |> List.sum
 
 let square x = x * x
 
@@ -230,7 +227,7 @@ let teaching_inputs = [| [ 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 1.0; 0.0; 0.0
 let testing_samples = [| [ 0.692; 0.000; 0.000; 0.174; 0.000; 0.000; 0.000; ] |]
 let teaching_samples_inputs = [| [ 1.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 1.0; 0.0; 0.0;  ] |]
 
-let epoch = 1500
+let epoch = 1
 
 let trained =
  train
