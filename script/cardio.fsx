@@ -72,7 +72,9 @@ let mapToSecondList mapper xs ys =
  let rec f mapper xs ys acc = match xs with | [] -> List.rev acc | hd::tl -> f mapper tl ys <| (List.map (mapper hd) ys)::acc
  f mapper xs ys List.empty
 
-let sclarVectorMul x ys = scalarToVecOp (*) x ys
+/// Scalar Vector Multiplication.
+let scalarVectorMul c xs = List.map ((*) c) xs
+
 let mulVectors xs ys    = List.map2 (*) xs ys
 let addVectors xs ys    = List.map2 (+) xs ys
 let logSigmoid x        = (/) 1.0 ((+) 1.0 (exp -x))
@@ -87,7 +89,7 @@ let weightedSum inputs weights bias =
  addVectors bias (List.map (dot inputs) weights)
 
 let deltas N gradients net_outputs =
- List.map (sclarVectorMul N) (mapToSecondList (*) gradients net_outputs)
+ List.map (scalarVectorMul N) (mapToSecondList (*) gradients net_outputs)
 
 type Network = {
  N:float
@@ -121,21 +123,21 @@ let backPropagate net =
 
  let out_grads = List.map2 (gradient deltaTanH) net.Outputs net.TargetOutputs
  let out_deltas = deltas net.N out_grads net.HiddenNetOutputs
- let out_prevDeltasWithM = List.map (sclarVectorMul net.M) net.OutputPrevDeltas
+ let out_prevDeltasWithM = List.map (scalarVectorMul net.M) net.OutputPrevDeltas
  let out_newDeltas = List.map2 addVectors out_deltas out_prevDeltasWithM
  let out_hidden_weights_update= List.map2 addVectors net.HiddenToOutputWeights out_newDeltas
- let out_bias_deltas = sclarVectorMul net.N out_grads
- let out_bias_prevDeltasWithM = sclarVectorMul net.M net.OutputBiasPrevDeltas
+ let out_bias_deltas = scalarVectorMul net.N out_grads
+ let out_bias_prevDeltasWithM = scalarVectorMul net.M net.OutputBiasPrevDeltas
  let out_bias_newDeltas = addVectors out_bias_deltas out_bias_prevDeltasWithM
  let out_bias_update = addVectors net.OutputBias out_bias_newDeltas
  
  let hid_grads = mulVectors (List.map deltaTanH net.HiddenNetOutputs) (List.map (dot out_grads) (transpose net.HiddenToOutputWeights))
  let hid_deltas = deltas net.N hid_grads net.Inputs
- let hid_prevDeltasWithM = List.map (sclarVectorMul net.M) net.HiddenPrevDeltas
+ let hid_prevDeltasWithM = List.map (scalarVectorMul net.M) net.HiddenPrevDeltas
  let hid_newDeltas = List.map2 addVectors hid_deltas hid_prevDeltasWithM
  let hid_input_weights_update = List.map2 addVectors net.InputToHiddenWeights hid_newDeltas
- let hid_bias_deltas = sclarVectorMul net.N hid_grads
- let hid_bias_prevDeltasWithM = sclarVectorMul net.M net.HiddenBiasPrevDeltas
+ let hid_bias_deltas = scalarVectorMul net.N hid_grads
+ let hid_bias_prevDeltasWithM = scalarVectorMul net.M net.HiddenBiasPrevDeltas
  let hid_bias_newDeltas = addVectors hid_bias_deltas hid_bias_prevDeltasWithM
  let hid_bias_update = addVectors net.HiddenBias hid_bias_newDeltas
 
