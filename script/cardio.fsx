@@ -84,7 +84,7 @@ let deltaTanH x = (/) 1.0 <| (*) (cosh x) (cosh x)
 let gradient dFunc output target = (*) (dFunc output) ((-) target output)
 
 let weightedSum inputs weights bias =
- addVectors bias (List.map (dotProduct inputs) weights)
+ addVectors bias (List.map (dot inputs) weights)
 
 let deltas N gradients net_outputs =
  List.map (sclarVectorMul N) (mapToSecondList (*) gradients net_outputs)
@@ -129,7 +129,7 @@ let backPropagate net =
  let out_bias_newDeltas = addVectors out_bias_deltas out_bias_prevDeltasWithM
  let out_bias_update = addVectors net.OutputBias out_bias_newDeltas
  
- let hid_grads = mulVectors (List.map deltaTanH net.HiddenNetOutputs) (List.map (dotProduct out_grads) (transpose net.HiddenToOutputWeights))
+ let hid_grads = mulVectors (List.map deltaTanH net.HiddenNetOutputs) (List.map (dot out_grads) (transpose net.HiddenToOutputWeights))
  let hid_deltas = deltas net.N hid_grads net.Inputs
  let hid_prevDeltasWithM = List.map (sclarVectorMul net.M) net.HiddenPrevDeltas
  let hid_newDeltas = List.map2 addVectors hid_deltas hid_prevDeltasWithM
