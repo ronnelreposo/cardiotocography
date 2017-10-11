@@ -20,10 +20,10 @@ let vecOp f xs ys =
  | a::b, c::d -> List.map2 f xs ys
 
 ///The Dot Product of two Vectors.
-let vecDotVec (acc:float) xs ys =
+let dotProduct xs ys =
  match xs, ys with
  | a::b, c::d -> vecOp (*) xs ys |> List.sum
- | _, _ -> acc 
+ | _, _ -> 0.0
 
 let square x = x * x
 
@@ -64,7 +64,6 @@ let logSigmoid x        = (/) 1.0 ((+) 1.0 (exp -x))
 let dervLogSigmoid x    = (*) x ((-) 1.0 x)
 let dervTanH x          = (*) (1.0 - x) (1.0 + x)
 let gradient dFunc output target = (*) (dFunc output) ((-) target output)
-let dotProduct xs ys = mulVectors xs ys |> List.sum
 
 let weightedSum inputs weights bias =
  addVectors bias (List.map (dotProduct inputs) weights)
@@ -112,7 +111,7 @@ let backPropagate net =
  let out_bias_newDeltas = addVectors out_bias_deltas out_bias_prevDeltasWithM
  let out_bias_update = addVectors net.OutputBias out_bias_newDeltas
  
- let hid_grads = mulVectors (List.map dervTanH net.HiddenNetOutputs) (List.map (vecDotVec 0.0 out_grads) (transpose net.HiddenToOutputWeights))
+ let hid_grads = mulVectors (List.map dervTanH net.HiddenNetOutputs) (List.map (dotProduct out_grads) (transpose net.HiddenToOutputWeights))
  let hid_deltas = deltas net.N hid_grads net.Inputs
  let hid_prevDeltasWithM = List.map (sclarVectorMul net.M) net.HiddenPrevDeltas
  let hid_newDeltas = List.map2 addVectors hid_deltas hid_prevDeltasWithM
