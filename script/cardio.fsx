@@ -21,9 +21,18 @@ let vecOp f xs ys =
 
 ///The Dot Product of two Vectors.
 let vecDotVec (acc:float) xs ys =
-    match xs, ys with
-    | a::b, c::d -> vecOp (*) xs ys |> List.sum
-    | _, _ -> acc 
+ match xs, ys with
+ | a::b, c::d -> vecOp (*) xs ys |> List.sum
+ | _, _ -> acc 
+
+let square x = x * x
+
+let rec norm xs =
+ let rec f xs acc =
+  match xs with
+  | [] -> List.sum acc |> sqrt
+  | hd::tl -> f tl ((square hd)::acc)
+ f xs List.empty
 
 ///Naive Shuffle List.
 let rec shuffleList count (sysRand:System.Random) (xs:List<'a>) =
@@ -48,7 +57,6 @@ let rec f2 mapper xs ys = //***normalize
  | [] -> []
  | hd::tl -> (f1 mapper hd ys)::(f2 mapper tl ys)
 
-let square x = x * x
 let sclarVectorMul x ys = f1 (*) x ys
 let mulVectors xs ys    = List.map2 (*) xs ys
 let addVectors xs ys    = List.map2 (+) xs ys
