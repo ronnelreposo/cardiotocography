@@ -62,7 +62,8 @@ let dataAtIndex  xs_data xs_index =
   | hd::tl -> (f data_xs tl ((List.item hd data_xs)::acc))
  f xs_data xs_index List.empty
 
-let rec scalarToVecOp mapper x ys = List.map (mapper x) ys
+/// Maps a scalar to a vector using a mapper function.
+let scalarToVecOp mapper x ys = List.map (mapper x) ys
 let rec f2 mapper xs ys = //***normalize
  match xs with
  | [] -> []
