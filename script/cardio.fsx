@@ -65,10 +65,15 @@ let dataAtIndex  xs_data xs_index =
 /// Maps a scalar to a vector using a mapper function.
 let scalarToVecOp mapper x ys = List.map (mapper x) ys
 
-let rec f2 mapper xs ys = //***normalize
- match xs with
- | [] -> []
- | hd::tl -> (scalarToVecOp mapper hd ys)::(f2 mapper tl ys)
+/// Maps the elements the first list (xs) to second list (ys) using the mapper function.
+/// first, it gets the first element of first list (xs) and maps to second list (ys)
+/// using the mapper function. i.e. (List.map (mapper x) ys).
+/// Finally it returns the accumulated mapped list.
+/// mapToSecondList (+) ["1"; "2"; "3"] ["2"; "3", "4"] =
+/// [ ["12"; "13"; "14"]; ["22"; "23"; "24"]; ["32"; "33"; "34"] ].
+let mapToSecondList mapper xs ys =
+ let rec f mapper xs ys acc = match xs with | [] -> List.rev acc | hd::tl -> f mapper tl ys <| (List.map (mapper hd) ys)::acc
+ f mapper xs ys List.empty
 
 let sclarVectorMul x ys = scalarToVecOp (*) x ys
 let mulVectors xs ys    = List.map2 (*) xs ys
@@ -85,7 +90,7 @@ let weightedSum inputs weights bias =
  addVectors bias (List.map (dotProduct inputs) weights)
 
 let deltas N gradients net_outputs =
- List.map (sclarVectorMul N) (f2 (*) gradients net_outputs)
+ List.map (sclarVectorMul N) (mapToSecondList (*) gradients net_outputs)
 
 type Network = {
  N:float
@@ -225,7 +230,7 @@ let teaching_inputs = [| [ 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 1.0; 0.0; 0.0
 let testing_samples = [| [ 0.692; 0.000; 0.000; 0.174; 0.000; 0.000; 0.000; ] |]
 let teaching_samples_inputs = [| [ 1.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 1.0; 0.0; 0.0;  ] |]
 
-let epoch = 100
+let epoch = 1500
 
 let trained =
  train
