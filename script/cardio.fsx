@@ -95,7 +95,8 @@ let listRandElems count =
  let rec f (rand:System.Random) acc c = match c with | 0 -> acc | _ -> f rand <| rand.NextDouble()::acc <| (-) c 1
  f (System.Random()) List.empty count
 
-let gradient dFunc output target = (*) (dFunc output) ((-) target output)
+/// Gradient. dFunc is the derivative of forward squashing function.
+let gradient dFunc output target = (*) <| dFunc output <| (-) target output
 
 let weightedSum inputs weights bias =
  add bias (List.map (dot inputs) weights)
@@ -234,7 +235,7 @@ let teaching_inputs = [| [ 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 1.0; 0.0; 0.0
 let testing_samples = [| [ 0.692; 0.000; 0.000; 0.174; 0.000; 0.000; 0.000; ] |]
 let teaching_samples_inputs = [| [ 1.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 1.0; 0.0; 0.0;  ] |]
 
-let epoch = 1
+let epoch = 20
 
 let trained =
  train
