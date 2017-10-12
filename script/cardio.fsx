@@ -87,6 +87,11 @@ let dervLogSigmoid x    = (*) x ((-) 1.0 x)
 /// Derivative of TanH i.e. sec^2h.
 let deltaTanH x = (/) 1.0 <| (*) (cosh x) (cosh x)
 
+/// Generate List of Random Elements.
+let listRandElems count =
+ let rec f (rand:System.Random) acc c = match c with | 0 -> acc | _ -> f rand <| rand.NextDouble()::acc <| (-) c 1
+ f (System.Random()) List.empty count
+
 let gradient dFunc output target = (*) (dFunc output) ((-) target output)
 
 let weightedSum inputs weights bias =
@@ -200,28 +205,21 @@ let rec train
   if errTresholdMeet then trained
   else train ((-) epoch 1) trained (training_samples, teaching_inputs) (testing_samples, teaching_testing_inputs)
 
-
 let inputSize = 7;
 let hiddenSize = 10;
 let outputSize = 13;
-
-let rec genWeights (rand:System.Random) count =
- match count with
- | 0 -> []
- | _ -> rand.NextDouble()::(genWeights rand ((-) count 1))
-let genRandWeights = genWeights (System.Random())
 
 let network = {
  N = 0.001
  M = 0.9
  Inputs = List.replicate inputSize 0.0
- InputToHiddenWeights = List.chunkBySize inputSize (genRandWeights ((*) inputSize hiddenSize))
- HiddenBias = genRandWeights hiddenSize
- HiddenToOutputWeights = List.chunkBySize hiddenSize (genRandWeights ((*) hiddenSize outputSize))
+ InputToHiddenWeights = List.chunkBySize inputSize (listRandElems ((*) inputSize hiddenSize))
+ HiddenBias = listRandElems hiddenSize
+ HiddenToOutputWeights = List.chunkBySize hiddenSize (listRandElems ((*) hiddenSize outputSize))
  HiddenNetOutputs = List.empty
  HiddenPrevDeltas = List.replicate hiddenSize (List.replicate inputSize 0.0)
  HiddenBiasPrevDeltas = List.replicate hiddenSize 0.0
- OutputBias = genRandWeights outputSize
+ OutputBias = listRandElems outputSize
  OutputPrevDeltas = List.replicate outputSize (List.replicate hiddenSize 0.0)
  OutputBiasPrevDeltas = List.replicate outputSize 0.0
  Outputs = List.empty
