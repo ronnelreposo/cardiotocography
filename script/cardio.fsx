@@ -119,26 +119,33 @@ type Network = {
  LearningRate: float
  Momentum: float
  Inputs: List<float>
- HiddenLayer : Layer
+ FirstHiddenLayer : Layer
+ SecondHiddenLayer : Layer
  OutputLayer : Layer
  TargetOutputs: List<float>
  }
 
 let feedForward net =
- let hiddenWeightedSum = weightedSum net.Inputs net.HiddenLayer.Weights net.HiddenLayer.Bias
- let hiddenNetOutputs = List.map tanh hiddenWeightedSum
- let outputWeightedSum = weightedSum hiddenNetOutputs net.OutputLayer.Weights net.OutputLayer.Bias
+
+ let firstHiddenWeightedSum = weightedSum net.Inputs net.FirstHiddenLayer.Weights net.FirstHiddenLayer.Bias
+ let firstHiddenNetOutputs = List.map tanh firstHiddenWeightedSum
+ let secondHiddenWeightedSum = weightedSum firstHiddenNetOutputs net.SecondHiddenLayer.Weights net.SecondHiddenLayer.Bias
+ let secondHiddenNetOutputs = List.map tanh secondHiddenWeightedSum
+
+ let outputWeightedSum = weightedSum secondHiddenNetOutputs net.OutputLayer.Weights net.OutputLayer.Bias
  let outputs = List.map tanh outputWeightedSum
  {
   net with
-   HiddenLayer = { net.HiddenLayer with NetOutputs = hiddenNetOutputs }
+   FirstHiddenLayer = { net.FirstHiddenLayer with NetOutputs = firstHiddenNetOutputs }
+   SecondHiddenLayer = { net.SecondHiddenLayer with NetOutputs = secondHiddenNetOutputs }
    OutputLayer = { net.OutputLayer with NetOutputs = outputs }
  }
 
-let backPropagate (net:Network) =
+(* *** note: the previous implementation, newDeltas are used instead of prevDeltas. *)
+let backPropagate (net:Network) = (* OutputLayer->SecondHiddenLayer->FirstHiddenLayer->Inputs *)
 
  let out_grads = List.map2 (gradient deltaTanH) net.OutputLayer.NetOutputs net.TargetOutputs
- let out_deltas = deltas net.LearningRate out_grads net.HiddenLayer.NetOutputs
+ let out_deltas = deltas net.LearningRate out_grads net.SecondHiddenLayer.NetOutputs
  let out_prevDeltasWithM = List.map (smul net.Momentum) net.OutputLayer.PrevDeltas
  let out_newDeltas = List.map2 add out_deltas out_prevDeltasWithM
  let out_hidden_weights_update= List.map2 add net.OutputLayer.Weights out_newDeltas
@@ -146,25 +153,41 @@ let backPropagate (net:Network) =
  let out_bias_prevDeltasWithM = smul net.Momentum net.OutputLayer.BiasPrevDeltas
  let out_bias_newDeltas = add out_bias_deltas out_bias_prevDeltasWithM
  let out_bias_update = add net.OutputLayer.Bias out_bias_newDeltas
- 
- let hid_grads = mul (List.map deltaTanH net.HiddenLayer.NetOutputs) (List.map (dot out_grads) (transpose net.OutputLayer.Weights))
- let hid_deltas = deltas net.LearningRate hid_grads net.Inputs
- let hid_prevDeltasWithM = List.map (smul net.Momentum) net.HiddenLayer.PrevDeltas
- let hid_newDeltas = List.map2 add hid_deltas hid_prevDeltasWithM
- let hid_input_weights_update = List.map2 add net.HiddenLayer.Weights hid_newDeltas
- let hid_bias_deltas = smul net.LearningRate hid_grads
- let hid_bias_prevDeltasWithM = smul net.Momentum net.HiddenLayer.BiasPrevDeltas
- let hid_bias_newDeltas = add hid_bias_deltas hid_bias_prevDeltasWithM
- let hid_bias_update = add net.HiddenLayer.Bias hid_bias_newDeltas
 
+ let secHidGrads = mul (List.map deltaTanH net.SecondHiddenLayer.NetOutputs) (List.map (dot out_grads) (transpose net.OutputLayer.Weights))
+ let secHidDeltas = deltas net.LearningRate secHidGrads net.FirstHiddenLayer.NetOutputs
+ let secHidPrevDeltasWithM = List.map (smul net.Momentum) net.SecondHiddenLayer.PrevDeltas
+ let secHidNewDeltas = List.map2 add secHidDeltas secHidPrevDeltasWithM
+ let secHidInputWeightsUpdate = List.map2 add net.SecondHiddenLayer.Weights secHidNewDeltas
+ let secHidBiasDeltas = smul net.LearningRate secHidGrads
+ let secHidBiasPrevDeltasWithM = smul net.Momentum net.SecondHiddenLayer.BiasPrevDeltas
+ let secHidBiasNewDeltas = add secHidBiasDeltas secHidBiasPrevDeltasWithM
+ let secHidBiasUpdate = add net.SecondHiddenLayer.Bias secHidBiasNewDeltas
+
+ let firstHidGrads = mul (List.map deltaTanH net.FirstHiddenLayer.NetOutputs) (List.map (dot secHidGrads) (transpose net.SecondHiddenLayer.Weights))
+ let firstHidDeltas = deltas net.LearningRate firstHidGrads net.Inputs
+ let firstHidPrevDeltasWithM = List.map (smul net.Momentum) net.FirstHiddenLayer.PrevDeltas
+ let firstHidNewDeltas = List.map2 add firstHidDeltas firstHidPrevDeltasWithM
+ let firstHidInputWeightsUpdate = List.map2 add net.FirstHiddenLayer.Weights firstHidNewDeltas
+ let firstHidBiasDeltas = smul net.LearningRate firstHidGrads
+ let firstHidBiasPrevDeltasWithM = smul net.Momentum net.FirstHiddenLayer.BiasPrevDeltas
+ let firstHidBiasNewDeltas = add firstHidBiasDeltas firstHidBiasPrevDeltasWithM
+ let firstHidBiasUpdate = add net.FirstHiddenLayer.Bias firstHidBiasNewDeltas
  {
   net with
-   HiddenLayer = {
-                  net.HiddenLayer with
-                   Weights = hid_input_weights_update
-                   Bias = hid_bias_update
-                   PrevDeltas = hid_deltas
-                   BiasPrevDeltas = hid_bias_deltas
+   FirstHiddenLayer = {
+                       net.FirstHiddenLayer with
+                        Weights = firstHidInputWeightsUpdate
+                        Bias = firstHidBiasUpdate
+                        PrevDeltas = firstHidNewDeltas
+                        BiasPrevDeltas = firstHidBiasNewDeltas
+                   }
+   SecondHiddenLayer = {
+                        net.SecondHiddenLayer with
+                         Weights = secHidInputWeightsUpdate
+                         Bias = secHidBiasUpdate
+                         PrevDeltas = secHidNewDeltas
+                         BiasPrevDeltas = secHidBiasNewDeltas
                    }
    OutputLayer = {
                   net.OutputLayer with
@@ -226,13 +249,21 @@ let network = {
  LearningRate = 0.001
  Momentum = 0.9
  Inputs = List.replicate inputSize 0.0
- HiddenLayer = {
-                Inputs = List.empty
-                Weights = ((*) inputSize hiddenSize) |> listRandElems |> List.chunkBySize inputSize
-                Bias = listRandElems hiddenSize
-                PrevDeltas = List.replicate hiddenSize <| List.replicate inputSize 0.0
-                BiasPrevDeltas = List.replicate hiddenSize 0.0
-                NetOutputs = List.empty
+ FirstHiddenLayer = {
+                     Inputs = List.empty
+                     Weights = ((*) inputSize hiddenSize) |> listRandElems |> List.chunkBySize inputSize
+                     Bias = listRandElems hiddenSize
+                     PrevDeltas = List.replicate hiddenSize <| List.replicate inputSize 0.0
+                     BiasPrevDeltas = List.replicate hiddenSize 0.0
+                     NetOutputs = List.empty
+ }
+ SecondHiddenLayer = {
+                      Inputs = List.empty
+                      Weights = ((*) hiddenSize hiddenSize) |> listRandElems |> List.chunkBySize hiddenSize
+                      Bias = listRandElems hiddenSize
+                      PrevDeltas = List.replicate hiddenSize <| List.replicate hiddenSize 0.0
+                      BiasPrevDeltas = List.replicate hiddenSize 0.0
+                      NetOutputs = List.empty
  }
  OutputLayer = {
                 Inputs = List.empty
@@ -262,7 +293,7 @@ let teaching_samples_inputs = [|
  [ 1.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 1.0; 0.0; 0.0;  ]
  |]
 
-let epoch = 20
+let epoch = 1000
 
 let trained =
  train
