@@ -82,10 +82,10 @@ let mul xs ys = List.map2 (*) xs ys
 let add xs ys = List.map2 (+) xs ys
 
 /// Logistic Sigmoid.
-let logSigmoid x        = (/) 1.0 ((+) 1.0 (exp -x))
+let logSigmoid x = (/) 1.0 ((+) 1.0 (exp -x))
 
 /// Derivative of Logistic Sigmoid.
-let deltaLogSigmoid x    = (*) x ((-) 1.0 x)
+let deltaLogSigmoid x = (*) x ((-) 1.0 x)
 
 /// Derivative of TanH i.e. sec^2h.
 let deltaTanH x = (/) 1.0 <| (*) (cosh x) (cosh x)
@@ -104,66 +104,75 @@ let weightedSum inputs weights bias = add bias <| List.map (dot inputs) weights
 /// Delta or The Rate of Change.
 let deltas learningRate gradients netOutputs = List.map <| smul learningRate <| mapToSecondList (*) gradients netOutputs
 
+/// Represents a Network Layer.
+type Layer = {
+  Inputs: List<float>
+  Weights: List<List<float>>
+  Bias: List<float>
+  PrevDeltas: List<List<float>>
+  BiasPrevDeltas: List<float>
+  NetOutputs: List<float>
+  }
+
+/// Represents a Feed Forward Network.
 type Network = {
- N:float
- M:float
- Inputs:List<float>
- InputToHiddenWeights:List<List<float>>
- HiddenBias:List<float>
- HiddenPrevDeltas:List<List<float>>
- HiddenBiasPrevDeltas:List<float>
- HiddenNetOutputs:List<float>
- HiddenToOutputWeights:List<List<float>>
- OutputBias:List<float>
- OutputPrevDeltas:List<List<float>>
- OutputBiasPrevDeltas:List<float>
- Outputs:List<float>
- TargetOutputs:List<float>
+ LearningRate: float
+ Momentum: float
+ Inputs: List<float>
+ HiddenLayer : Layer
+ OutputLayer : Layer
+ TargetOutputs: List<float>
  }
 
 let feedForward net =
- let hiddenWeightedSum = weightedSum net.Inputs net.InputToHiddenWeights net.HiddenBias
+ let hiddenWeightedSum = weightedSum net.Inputs net.HiddenLayer.Weights net.HiddenLayer.Bias
  let hiddenNetOutputs = List.map tanh hiddenWeightedSum
- let outputWeightedSum = weightedSum hiddenNetOutputs net.HiddenToOutputWeights net.OutputBias
+ let outputWeightedSum = weightedSum hiddenNetOutputs net.OutputLayer.Weights net.OutputLayer.Bias
  let outputs = List.map tanh outputWeightedSum
  {
   net with
-   HiddenNetOutputs = hiddenNetOutputs
-   Outputs = outputs
+   HiddenLayer = { net.HiddenLayer with NetOutputs = hiddenNetOutputs }
+   OutputLayer = { net.OutputLayer with NetOutputs = outputs }
  }
 
-let backPropagate net =
+let backPropagate (net:Network) =
 
- let out_grads = List.map2 (gradient deltaTanH) net.Outputs net.TargetOutputs
- let out_deltas = deltas net.N out_grads net.HiddenNetOutputs
- let out_prevDeltasWithM = List.map (smul net.M) net.OutputPrevDeltas
+ let out_grads = List.map2 (gradient deltaTanH) net.OutputLayer.NetOutputs net.TargetOutputs
+ let out_deltas = deltas net.LearningRate out_grads net.HiddenLayer.NetOutputs
+ let out_prevDeltasWithM = List.map (smul net.Momentum) net.OutputLayer.PrevDeltas
  let out_newDeltas = List.map2 add out_deltas out_prevDeltasWithM
- let out_hidden_weights_update= List.map2 add net.HiddenToOutputWeights out_newDeltas
- let out_bias_deltas = smul net.N out_grads
- let out_bias_prevDeltasWithM = smul net.M net.OutputBiasPrevDeltas
+ let out_hidden_weights_update= List.map2 add net.OutputLayer.Weights out_newDeltas
+ let out_bias_deltas = smul net.LearningRate out_grads
+ let out_bias_prevDeltasWithM = smul net.Momentum net.OutputLayer.BiasPrevDeltas
  let out_bias_newDeltas = add out_bias_deltas out_bias_prevDeltasWithM
- let out_bias_update = add net.OutputBias out_bias_newDeltas
+ let out_bias_update = add net.OutputLayer.Bias out_bias_newDeltas
  
- let hid_grads = mul (List.map deltaTanH net.HiddenNetOutputs) (List.map (dot out_grads) (transpose net.HiddenToOutputWeights))
- let hid_deltas = deltas net.N hid_grads net.Inputs
- let hid_prevDeltasWithM = List.map (smul net.M) net.HiddenPrevDeltas
+ let hid_grads = mul (List.map deltaTanH net.HiddenLayer.NetOutputs) (List.map (dot out_grads) (transpose net.OutputLayer.Weights))
+ let hid_deltas = deltas net.LearningRate hid_grads net.Inputs
+ let hid_prevDeltasWithM = List.map (smul net.Momentum) net.HiddenLayer.PrevDeltas
  let hid_newDeltas = List.map2 add hid_deltas hid_prevDeltasWithM
- let hid_input_weights_update = List.map2 add net.InputToHiddenWeights hid_newDeltas
- let hid_bias_deltas = smul net.N hid_grads
- let hid_bias_prevDeltasWithM = smul net.M net.HiddenBiasPrevDeltas
+ let hid_input_weights_update = List.map2 add net.HiddenLayer.Weights hid_newDeltas
+ let hid_bias_deltas = smul net.LearningRate hid_grads
+ let hid_bias_prevDeltasWithM = smul net.Momentum net.HiddenLayer.BiasPrevDeltas
  let hid_bias_newDeltas = add hid_bias_deltas hid_bias_prevDeltasWithM
- let hid_bias_update = add net.HiddenBias hid_bias_newDeltas
+ let hid_bias_update = add net.HiddenLayer.Bias hid_bias_newDeltas
 
  {
   net with
-   InputToHiddenWeights = hid_input_weights_update
-   HiddenToOutputWeights = out_hidden_weights_update
-   HiddenBias = hid_bias_update
-   OutputBias = out_bias_update
-   HiddenPrevDeltas = hid_deltas
-   OutputPrevDeltas = out_deltas
-   HiddenBiasPrevDeltas = hid_bias_deltas
-   OutputBiasPrevDeltas = out_bias_deltas
+   HiddenLayer = {
+                  net.HiddenLayer with
+                   Weights = hid_input_weights_update
+                   Bias = hid_bias_update
+                   PrevDeltas = hid_deltas
+                   BiasPrevDeltas = hid_bias_deltas
+                   }
+   OutputLayer = {
+                  net.OutputLayer with
+                   Weights = out_hidden_weights_update
+                   Bias = out_bias_update
+                   PrevDeltas = out_deltas
+                   BiasPrevDeltas = out_bias_deltas
+                   }
  }
 
 let rec train
@@ -174,7 +183,7 @@ let rec train
  =
  let trainOnce = feedForward >> backPropagate
 
- let networkDistance network = distance network.TargetOutputs network.Outputs
+ let networkDistance network = distance network.TargetOutputs network.OutputLayer.NetOutputs
 
  match epoch with
  | 0 -> netAcc
@@ -214,26 +223,44 @@ let hiddenSize = 10;
 let outputSize = 13;
 
 let network = {
- N = 0.001
- M = 0.9
+ LearningRate = 0.001
+ Momentum = 0.9
  Inputs = List.replicate inputSize 0.0
- InputToHiddenWeights = List.chunkBySize inputSize (listRandElems ((*) inputSize hiddenSize))
- HiddenBias = listRandElems hiddenSize
- HiddenToOutputWeights = List.chunkBySize hiddenSize (listRandElems ((*) hiddenSize outputSize))
- HiddenNetOutputs = List.empty
- HiddenPrevDeltas = List.replicate hiddenSize (List.replicate inputSize 0.0)
- HiddenBiasPrevDeltas = List.replicate hiddenSize 0.0
- OutputBias = listRandElems outputSize
- OutputPrevDeltas = List.replicate outputSize (List.replicate hiddenSize 0.0)
- OutputBiasPrevDeltas = List.replicate outputSize 0.0
- Outputs = List.empty
+ HiddenLayer = {
+                Inputs = List.empty
+                Weights = ((*) inputSize hiddenSize) |> listRandElems |> List.chunkBySize inputSize
+                Bias = listRandElems hiddenSize
+                PrevDeltas = List.replicate hiddenSize <| List.replicate inputSize 0.0
+                BiasPrevDeltas = List.replicate hiddenSize 0.0
+                NetOutputs = List.empty
+ }
+ OutputLayer = {
+                Inputs = List.empty
+                Weights = ((*) hiddenSize outputSize) |> listRandElems |> List.chunkBySize hiddenSize
+                Bias = listRandElems outputSize
+                PrevDeltas = List.replicate outputSize <| List.replicate hiddenSize 0.0
+                BiasPrevDeltas = List.replicate outputSize 0.0
+                NetOutputs = List.empty
+ }
  TargetOutputs = List.replicate outputSize 0.0
 }
 
-let training_samples = [| [ 0.500; 0.000; 0.000; 0.000; 0.000; 0.000; 0.000;  ] |]
-let teaching_inputs = [| [ 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 1.0; 0.0; 0.0; 1.0; 0.0;  ] |]
-let testing_samples = [| [ 0.692; 0.000; 0.000; 0.174; 0.000; 0.000; 0.000; ] |]
-let teaching_samples_inputs = [| [ 1.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 1.0; 0.0; 0.0;  ] |]
+let training_samples = [|
+ [ 0.500; 0.000; 0.000; 0.000; 0.000; 0.000; 0.000;  ]
+ [ 0.500; 0.000; 0.000; 0.000; 0.000; 0.000; 0.000;  ]
+ |]
+let teaching_inputs = [|
+ [ 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 1.0; 0.0; 0.0; 1.0; 0.0;  ]
+ [ 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 1.0; 0.0; 0.0; 1.0; 0.0;  ]
+ |]
+let testing_samples = [|
+ [ 0.692; 0.000; 0.000; 0.174; 0.000; 0.000; 0.000; ]
+ [ 0.692; 0.000; 0.000; 0.174; 0.000; 0.000; 0.000; ]
+ |]
+let teaching_samples_inputs = [|
+ [ 1.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 1.0; 0.0; 0.0;  ]
+ [ 1.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0; 1.0; 0.0; 0.0;  ]
+ |]
 
 let epoch = 20
 
