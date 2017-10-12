@@ -81,8 +81,11 @@ let mul xs ys = List.map2 (*) xs ys
 /// Vector Addition.
 let add xs ys = List.map2 (+) xs ys
 
+/// Logistic Sigmoid.
 let logSigmoid x        = (/) 1.0 ((+) 1.0 (exp -x))
-let dervLogSigmoid x    = (*) x ((-) 1.0 x)
+
+/// Derivative of Logistic Sigmoid.
+let deltaLogSigmoid x    = (*) x ((-) 1.0 x)
 
 /// Derivative of TanH i.e. sec^2h.
 let deltaTanH x = (/) 1.0 <| (*) (cosh x) (cosh x)
