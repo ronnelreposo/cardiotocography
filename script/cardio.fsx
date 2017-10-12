@@ -98,11 +98,11 @@ let listRandElems count =
 /// Gradient. dFunc is the derivative of forward squashing function.
 let gradient dFunc output target = (*) <| dFunc output <| (-) target output
 
-let weightedSum inputs weights bias =
- add bias (List.map (dot inputs) weights)
+/// Weighted Sum with Bias.
+let weightedSum inputs weights bias = add bias <| List.map (dot inputs) weights
 
-let deltas N gradients net_outputs =
- List.map (smul N) (mapToSecondList (*) gradients net_outputs)
+/// Delta or The Rate of Change.
+let deltas learningRate gradients netOutputs = List.map <| smul learningRate <| mapToSecondList (*) gradients netOutputs
 
 type Network = {
  N:float
