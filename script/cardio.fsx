@@ -1,4 +1,7 @@
 ﻿
+open System.IO;
+open System.Text.RegularExpressions;
+
 /// Matrix Transpose.
 let transpose xss =
  let rec f xss acc =
@@ -201,8 +204,8 @@ let backPropagate (net:Network) = (* OutputLayer->SecondHiddenLayer->FirstHidden
 let rec train
  epoch
  netAcc
- ((training_samples:List<List<float>>), (teaching_inputs:List<List<float>>))
- ((testing_samples:List<List<float>>), (teaching_testing_inputs:List<List<float>>))
+ ((training_samples:List<List<float>>), (teachingInputs:List<List<float>>))
+ ((testing_samples:List<List<float>>), (testOutputs:List<List<float>>))
  =
  let trainOnce = feedForward >> backPropagate
 
@@ -219,12 +222,12 @@ let rec train
   let training_index = [0..(training_samples.Length - 1)]
   let training_rand_index = shuffleList training_index.Length rand training_index
   let shuffled_training_s = dataAtIndex training_samples training_rand_index
-  let shuffled_training_i = dataAtIndex teaching_inputs training_rand_index
+  let shuffled_training_i = dataAtIndex teachingInputs training_rand_index
 
   let testing_index = [0..(testing_samples.Length - 1)]
   let testing_rand_index = shuffleList testing_index.Length rand testing_index
   let shuffled_testing_s = dataAtIndex testing_samples testing_rand_index
-  let shuffled_testing_i = dataAtIndex teaching_testing_inputs testing_rand_index
+  let shuffled_testing_i = dataAtIndex testOutputs testing_rand_index
 
   let trained = List.fold2 (funcNet trainOnce) netAcc shuffled_training_s shuffled_training_i
   let rms_trained_err = networkDistance trained
@@ -232,14 +235,15 @@ let rec train
   let validated = List.fold2 (funcNet feedForward) netAcc shuffled_testing_s shuffled_testing_i
   let rms_validated_err = networkDistance validated
 
-//  if epoch % 100 = 0 then printfn "%f %f" rms_trained_err rms_validated_err
-  printfn "%f %f" rms_trained_err rms_validated_err
+  if epoch % 100 = 0 then printfn "%f %f" rms_trained_err rms_validated_err
+//  printfn "%f %f" rms_trained_err rms_validated_err
   
-  let best_trained_err = 0.019999 //*** CONSIDER PASSING TO PARAMETER.
-  let best_test_err = 0.019999
-  let errTresholdMeet = (rms_trained_err < best_trained_err) && (rms_validated_err < best_test_err)
-  if errTresholdMeet then trained
-  else train ((-) epoch 1) trained (training_samples, teaching_inputs) (testing_samples, teaching_testing_inputs)
+//  let best_trained_err = 0.019999 //*** CONSIDER PASSING TO PARAMETER.
+//  let best_test_err = 0.019999
+//  let errTresholdMeet = (rms_trained_err < best_trained_err) && (rms_validated_err < best_test_err)
+//  if errTresholdMeet then trained
+//  else train ((-) epoch 1) trained (training_samples, teachingInputs) (testing_samples, testOutputs)
+  train ((-) epoch 1) trained (training_samples, teachingInputs) (testing_samples, testOutputs)
 
 let inputSize = 7;
 let hiddenSize = 10;
@@ -276,18 +280,21 @@ let network = {
  TargetOutputs = List.replicate outputSize 0.0
 }
 
-let training_samples = [| |]
-let teaching_inputs = [| |]
-let testing_samples = [| |]
-let teaching_samples_inputs = [| |]
+let dataToFloatList separator data = Regex.Split(data, separator) |> Array.Parallel.map float |> Array.toList
+let csvStrToFloatList = dataToFloatList ","
+let data filename = (* replace with your current directory. *)
+ File.ReadAllLines(@"D:\Projects\AI\cardiotocography\data and error\"+filename)
+ |> Array.toList
+ |> List.map csvStrToFloatList
 
-let epoch = 1000
+let training_samples = data "training_samples.txt"
+let teaching_inputs = data "teaching_inputs.txt"
+let testing_samples = data "testing_samples.txt"
+let test_outputs = data "test_outputs.txt"
 
-let trained =
- train
-  epoch network
-  ((Array.toList training_samples), (Array.toList teaching_inputs))
-  ((Array.toList testing_samples), (Array.toList teaching_samples_inputs))
+let epoch = 1
+
+let trained = train epoch network (training_samples, teaching_inputs) (testing_samples, test_outputs)
 
 (* val trained : Network = //Error: (Training: 0.016551, Test: 0.017999)
   {LearningRate = 0.001;
