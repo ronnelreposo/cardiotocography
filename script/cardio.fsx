@@ -250,7 +250,7 @@ let rec train
    log fullfilepath
 
   (* write error *)
-  let errors trained_err validated_err = trained_err + "," + validated_err
+  let errors trained_err validated_err = trained_err + "," + validated_err + "\n"
   logToDataFile "errors.txt" <| errors (rms_trained_err.ToString()) (rms_validated_err.ToString())
 
   (* write appropriate parameters.
@@ -261,7 +261,7 @@ let rec train
    (netAcc.SecondHiddenLayer.Weights |> matrixToString) + "," +
    (netAcc.SecondHiddenLayer.Bias |> vectorToString) + "," +
    (netAcc.OutputLayer.Weights |> matrixToString) + "," +
-   (netAcc.OutputLayer.Bias |> vectorToString)
+   (netAcc.OutputLayer.Bias |> vectorToString) + "\n"
   logToDataFile "weightsAndBiases.txt" <| logNetworkParameters
 
   if epoch % 100 = 0 then printfn "%f %f" rms_trained_err rms_validated_err
@@ -314,6 +314,7 @@ let teaching_inputs = data "teaching_inputs.txt"
 let testing_samples = data "testing_samples.txt"
 let test_outputs = data "test_outputs.txt"
 
-let epoch = 1
+let epoch = 1000
 
+printfn "Training..."
 let trained = train epoch network (training_samples, teaching_inputs) (testing_samples, test_outputs) 
