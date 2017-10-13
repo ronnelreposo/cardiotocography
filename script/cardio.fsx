@@ -108,7 +108,7 @@ let weightedSum inputs weights bias = add bias <| List.map (dot inputs) weights
 let deltas learningRate gradients netOutputs = List.map <| smul learningRate <| mapToSecondList (*) gradients netOutputs
 
 let vectorToString (vector:List<float>) =
- let concatCommaSep (x:float) s = x.ToString("F2") + "," + s
+ let concatCommaSep (x:float) s = x.ToString("F6") + "," + s
  List.foldBack concatCommaSep vector ""
 
 let rec matrixToString (matrix:List<List<float>>) =
@@ -314,7 +314,7 @@ let teaching_inputs = data "teaching_inputs.txt"
 let testing_samples = data "testing_samples.txt"
 let test_outputs = data "test_outputs.txt"
 
-let epoch = 1000
+let epoch = 4000
 
 printfn "Training..."
 let trained = train epoch network (training_samples, teaching_inputs) (testing_samples, test_outputs) 
