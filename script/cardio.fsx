@@ -232,14 +232,15 @@ let rec train
   let validated = List.fold2 (funcNet feedForward) netAcc shuffled_testing_s shuffled_testing_i
   let rms_validated_err = networkDistance validated
 
-//  if epoch % 100 = 0 then printfn "%f %f" rms_trained_err rms_validated_err
-  printfn "%f %f" rms_trained_err rms_validated_err
+  if epoch % 100 = 0 then printfn "%f %f" rms_trained_err rms_validated_err
+//  printfn "%f %f" rms_trained_err rms_validated_err
   
-  let best_trained_err = 0.019999 //*** CONSIDER PASSING TO PARAMETER.
-  let best_test_err = 0.019999
-  let errTresholdMeet = (rms_trained_err < best_trained_err) && (rms_validated_err < best_test_err)
-  if errTresholdMeet then trained
-  else train ((-) epoch 1) trained (training_samples, teaching_inputs) (testing_samples, teaching_testing_inputs)
+//  let best_trained_err = 0.019999 //*** CONSIDER PASSING TO PARAMETER.
+//  let best_test_err = 0.019999
+//  let errTresholdMeet = (rms_trained_err < best_trained_err) && (rms_validated_err < best_test_err)
+//  if errTresholdMeet then trained
+//  else train ((-) epoch 1) trained (training_samples, teaching_inputs) (testing_samples, teaching_testing_inputs)
+  train ((-) epoch 1) trained (training_samples, teaching_inputs) (testing_samples, teaching_testing_inputs)
 
 let inputSize = 7;
 let hiddenSize = 10;
