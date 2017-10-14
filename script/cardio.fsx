@@ -120,6 +120,7 @@ type Layer = {
   Inputs: List<float>
   Weights: List<List<float>>
   Bias: List<float>
+  Gradients: List<float>
   PrevDeltas: List<List<float>>
   BiasPrevDeltas: List<float>
   NetOutputs: List<float>
@@ -142,71 +143,76 @@ let feedForward net =
  let firstHiddenNetOutputs = List.map tanh firstHiddenWeightedSum
  let secondHiddenWeightedSum = weightedSum firstHiddenNetOutputs net.SecondHiddenLayer.Weights net.SecondHiddenLayer.Bias
  let secondHiddenNetOutputs = List.map tanh secondHiddenWeightedSum
-
  let outputWeightedSum = weightedSum secondHiddenNetOutputs net.OutputLayer.Weights net.OutputLayer.Bias
  let outputs = List.map tanh outputWeightedSum
  {
   net with
-   FirstHiddenLayer = { net.FirstHiddenLayer with NetOutputs = firstHiddenNetOutputs }
-   SecondHiddenLayer = { net.SecondHiddenLayer with NetOutputs = secondHiddenNetOutputs }
-   OutputLayer = { net.OutputLayer with NetOutputs = outputs }
- }
-
-(* *** note: the previous implementation, newDeltas are used instead of prevDeltas. *)
-let backPropagate (net:Network) = (* OutputLayer->SecondHiddenLayer->FirstHiddenLayer->Inputs *)
-
- let out_grads = List.map2 (gradient deltaTanH) net.OutputLayer.NetOutputs net.TargetOutputs
- let out_deltas = deltas net.LearningRate out_grads net.SecondHiddenLayer.NetOutputs
- let out_prevDeltasWithM = List.map (smul net.Momentum) net.OutputLayer.PrevDeltas
- let out_newDeltas = List.map2 add out_deltas out_prevDeltasWithM
- let out_hidden_weights_update= List.map2 add net.OutputLayer.Weights out_newDeltas
- let out_bias_deltas = smul net.LearningRate out_grads
- let out_bias_prevDeltasWithM = smul net.Momentum net.OutputLayer.BiasPrevDeltas
- let out_bias_newDeltas = add out_bias_deltas out_bias_prevDeltasWithM
- let out_bias_update = add net.OutputLayer.Bias out_bias_newDeltas
-
- let secHidGrads = mul (List.map deltaTanH net.SecondHiddenLayer.NetOutputs) (List.map (dot out_grads) (transpose net.OutputLayer.Weights))
- let secHidDeltas = deltas net.LearningRate secHidGrads net.FirstHiddenLayer.NetOutputs
- let secHidPrevDeltasWithM = List.map (smul net.Momentum) net.SecondHiddenLayer.PrevDeltas
- let secHidNewDeltas = List.map2 add secHidDeltas secHidPrevDeltasWithM
- let secHidInputWeightsUpdate = List.map2 add net.SecondHiddenLayer.Weights secHidNewDeltas
- let secHidBiasDeltas = smul net.LearningRate secHidGrads
- let secHidBiasPrevDeltasWithM = smul net.Momentum net.SecondHiddenLayer.BiasPrevDeltas
- let secHidBiasNewDeltas = add secHidBiasDeltas secHidBiasPrevDeltasWithM
- let secHidBiasUpdate = add net.SecondHiddenLayer.Bias secHidBiasNewDeltas
-
- let firstHidGrads = mul (List.map deltaTanH net.FirstHiddenLayer.NetOutputs) (List.map (dot secHidGrads) (transpose net.SecondHiddenLayer.Weights))
- let firstHidDeltas = deltas net.LearningRate firstHidGrads net.Inputs
- let firstHidPrevDeltasWithM = List.map (smul net.Momentum) net.FirstHiddenLayer.PrevDeltas
- let firstHidNewDeltas = List.map2 add firstHidDeltas firstHidPrevDeltasWithM
- let firstHidInputWeightsUpdate = List.map2 add net.FirstHiddenLayer.Weights firstHidNewDeltas
- let firstHidBiasDeltas = smul net.LearningRate firstHidGrads
- let firstHidBiasPrevDeltasWithM = smul net.Momentum net.FirstHiddenLayer.BiasPrevDeltas
- let firstHidBiasNewDeltas = add firstHidBiasDeltas firstHidBiasPrevDeltasWithM
- let firstHidBiasUpdate = add net.FirstHiddenLayer.Bias firstHidBiasNewDeltas
- {
-  net with
    FirstHiddenLayer = {
                        net.FirstHiddenLayer with
-                        Weights = firstHidInputWeightsUpdate
-                        Bias = firstHidBiasUpdate
-                        PrevDeltas = firstHidNewDeltas
-                        BiasPrevDeltas = firstHidBiasNewDeltas
-                   }
+                        Inputs = net.Inputs
+                        NetOutputs = firstHiddenNetOutputs
+                      }
    SecondHiddenLayer = {
                         net.SecondHiddenLayer with
-                         Weights = secHidInputWeightsUpdate
-                         Bias = secHidBiasUpdate
-                         PrevDeltas = secHidNewDeltas
-                         BiasPrevDeltas = secHidBiasNewDeltas
-                   }
+                         Inputs = firstHiddenNetOutputs
+                         NetOutputs = secondHiddenNetOutputs
+                       }
    OutputLayer = {
                   net.OutputLayer with
-                   Weights = out_hidden_weights_update
-                   Bias = out_bias_update
-                   PrevDeltas = out_deltas
-                   BiasPrevDeltas = out_bias_deltas
-                   }
+                   Inputs = secondHiddenNetOutputs
+                   NetOutputs = outputs
+                 }
+ }
+
+
+let bpOutputLayer n m tOutputs (layer:Layer) =
+ let grads = List.map2 (gradient deltaTanH) layer.NetOutputs tOutputs
+ let bpDeltas = deltas n grads layer.Inputs
+ let prevDeltasWithM = List.map (smul m) layer.PrevDeltas
+ let newDeltas = List.map2 add bpDeltas prevDeltasWithM
+ let weightsUpdate= List.map2 add layer.Weights newDeltas
+ let biasDeltas = smul n grads
+ let biasPrevDeltasWithM = smul m layer.BiasPrevDeltas
+ let biasNewDeltas = add biasDeltas biasPrevDeltasWithM
+ let biasUpdate = add layer.Bias biasNewDeltas
+ {
+  layer with
+   Weights = weightsUpdate
+   Bias = biasUpdate
+   Gradients = grads
+   PrevDeltas = newDeltas
+   BiasPrevDeltas = biasNewDeltas
+ }
+
+let bpHiddenLayer n m layer nextLayer =
+ let grads = mul (List.map deltaTanH layer.NetOutputs) (List.map (dot nextLayer.Gradients) (transpose nextLayer.Weights))
+ let bpDeltas = deltas n grads layer.Inputs
+ let prevDeltasWithM = List.map (smul m) layer.PrevDeltas
+ let newDeltas = List.map2 add bpDeltas prevDeltasWithM
+ let weightsUpdate = List.map2 add layer.Weights newDeltas
+ let biasDeltas = smul n grads
+ let biasPrevDeltasWithM = smul m layer.BiasPrevDeltas
+ let biasNewDeltas = add biasDeltas biasPrevDeltasWithM
+ let biasUpdate = add layer.Bias biasNewDeltas
+ {
+  layer with
+   Weights = weightsUpdate
+   Bias = biasUpdate
+   Gradients = grads
+   PrevDeltas = newDeltas
+   BiasPrevDeltas = biasNewDeltas
+ }
+
+let backPropagate (net:Network) =
+ let bpOutputLayer = bpOutputLayer net.LearningRate net.Momentum net.TargetOutputs net.OutputLayer
+ let bpHidLayerWithHyperParams = bpHiddenLayer net.LearningRate net.Momentum
+ let bpSecHidLayer = bpHidLayerWithHyperParams net.SecondHiddenLayer bpOutputLayer
+ let bpFirstHidLayer = bpHidLayerWithHyperParams net.FirstHiddenLayer bpSecHidLayer
+ {
+  net with
+   OutputLayer = bpOutputLayer
+   SecondHiddenLayer = bpSecHidLayer
+   FirstHiddenLayer =  bpFirstHidLayer
  }
 
 let rec train
@@ -249,20 +255,20 @@ let rec train
    let fullfilepath = @"D:\Projects\AI\cardiotocography\script\"+filename
    log fullfilepath
 
-  (* write error *)
-  let errors trained_err validated_err = trained_err + "," + validated_err + "\n"
-  logToDataFile "errors.txt" <| errors (rms_trained_err.ToString()) (rms_validated_err.ToString())
-
-  (* write appropriate parameters.
-   -h1,h2,output weights and biases. *)
-  let logNetworkParameters =
-   (netAcc.FirstHiddenLayer.Weights |> matrixToString) + "," +
-   (netAcc.FirstHiddenLayer.Bias |> vectorToString) + "," +
-   (netAcc.SecondHiddenLayer.Weights |> matrixToString) + "," +
-   (netAcc.SecondHiddenLayer.Bias |> vectorToString) + "," +
-   (netAcc.OutputLayer.Weights |> matrixToString) + "," +
-   (netAcc.OutputLayer.Bias |> vectorToString) + "\n"
-  logToDataFile "weightsAndBiases.txt" <| logNetworkParameters
+//  (* write error *)
+//  let errors trained_err validated_err = trained_err + "," + validated_err + "\n"
+//  logToDataFile "errors.txt" <| errors (rms_trained_err.ToString()) (rms_validated_err.ToString())
+//
+//  (* write appropriate parameters.
+//   -h1,h2,output weights and biases. *)
+//  let logNetworkParameters =
+//   (netAcc.FirstHiddenLayer.Weights |> matrixToString) + "," +
+//   (netAcc.FirstHiddenLayer.Bias |> vectorToString) + "," +
+//   (netAcc.SecondHiddenLayer.Weights |> matrixToString) + "," +
+//   (netAcc.SecondHiddenLayer.Bias |> vectorToString) + "," +
+//   (netAcc.OutputLayer.Weights |> matrixToString) + "," +
+//   (netAcc.OutputLayer.Bias |> vectorToString) + "\n"
+//  logToDataFile "weightsAndBiases.txt" <| logNetworkParameters
 
   if epoch % 100 = 0 then printfn "%f %f" rms_trained_err rms_validated_err
   train ((-) epoch 1) trained (training_samples, teachingInputs) (testing_samples, testOutputs)
@@ -279,6 +285,7 @@ let network = {
                      Inputs = List.empty
                      Weights = ((*) inputSize hiddenSize) |> listRandElems |> List.chunkBySize inputSize
                      Bias = listRandElems hiddenSize
+                     Gradients = List.empty
                      PrevDeltas = List.replicate hiddenSize <| List.replicate inputSize 0.0
                      BiasPrevDeltas = List.replicate hiddenSize 0.0
                      NetOutputs = List.empty
@@ -287,6 +294,7 @@ let network = {
                       Inputs = List.empty
                       Weights = ((*) hiddenSize hiddenSize) |> listRandElems |> List.chunkBySize hiddenSize
                       Bias = listRandElems hiddenSize
+                      Gradients = List.empty
                       PrevDeltas = List.replicate hiddenSize <| List.replicate hiddenSize 0.0
                       BiasPrevDeltas = List.replicate hiddenSize 0.0
                       NetOutputs = List.empty
@@ -295,6 +303,7 @@ let network = {
                 Inputs = List.empty
                 Weights = ((*) hiddenSize outputSize) |> listRandElems |> List.chunkBySize hiddenSize
                 Bias = listRandElems outputSize
+                Gradients = List.empty
                 PrevDeltas = List.replicate outputSize <| List.replicate hiddenSize 0.0
                 BiasPrevDeltas = List.replicate outputSize 0.0
                 NetOutputs = List.empty
@@ -309,12 +318,14 @@ let data filename = (* replace with your current directory. *)
  |> Array.toList
  |> List.map csvStrToFloatList
 
+#time
 let training_samples = data "training_samples.txt"
 let teaching_inputs = data "teaching_inputs.txt"
 let testing_samples = data "testing_samples.txt"
 let test_outputs = data "test_outputs.txt"
+#time
 
-let epoch = 4000
+let epoch = 1
 
 printfn "Training..."
-let trained = train epoch network (training_samples, teaching_inputs) (testing_samples, test_outputs) 
+//let trained = train epoch network (training_samples, teaching_inputs) (testing_samples, test_outputs) 
