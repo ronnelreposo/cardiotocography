@@ -93,9 +93,6 @@ let deltaLogSigmoid x = (*) x ((-) 1.0 x)
 /// Derivative of TanH i.e. sec^2h.
 let deltaTanH x = (/) 1.0 <| (*) (cosh x) (cosh x)
 
-///Smooth ReLu
-let relu x = log (1.0 + exp x)
-
 /// Generate List of Random Elements.
 let listRandElems count =
  let rec f (rand:System.Random) acc c = match c with | 0 -> acc | _ -> f rand <| rand.NextDouble()::acc <| (-) c 1
@@ -142,9 +139,9 @@ type Network = {
 let feedForward net =
 
  let firstHiddenWeightedSum = weightedSum net.Inputs net.FirstHiddenLayer.Weights net.FirstHiddenLayer.Bias
- let firstHiddenNetOutputs = List.map relu firstHiddenWeightedSum
+ let firstHiddenNetOutputs = List.map tanh firstHiddenWeightedSum
  let secondHiddenWeightedSum = weightedSum firstHiddenNetOutputs net.SecondHiddenLayer.Weights net.SecondHiddenLayer.Bias
- let secondHiddenNetOutputs = List.map relu secondHiddenWeightedSum
+ let secondHiddenNetOutputs = List.map tanh secondHiddenWeightedSum
 
  let outputWeightedSum = weightedSum secondHiddenNetOutputs net.OutputLayer.Weights net.OutputLayer.Bias
  let outputs = List.map tanh outputWeightedSum
@@ -158,7 +155,7 @@ let feedForward net =
 (* *** note: the previous implementation, newDeltas are used instead of prevDeltas. *)
 let backPropagate (net:Network) = (* OutputLayer->SecondHiddenLayer->FirstHiddenLayer->Inputs *)
 
- let out_grads = List.map2 (gradient logSigmoid) net.OutputLayer.NetOutputs net.TargetOutputs
+ let out_grads = List.map2 (gradient deltaTanH) net.OutputLayer.NetOutputs net.TargetOutputs
  let out_deltas = deltas net.LearningRate out_grads net.SecondHiddenLayer.NetOutputs
  let out_prevDeltasWithM = List.map (smul net.Momentum) net.OutputLayer.PrevDeltas
  let out_newDeltas = List.map2 add out_deltas out_prevDeltasWithM
@@ -168,7 +165,7 @@ let backPropagate (net:Network) = (* OutputLayer->SecondHiddenLayer->FirstHidden
  let out_bias_newDeltas = add out_bias_deltas out_bias_prevDeltasWithM
  let out_bias_update = add net.OutputLayer.Bias out_bias_newDeltas
 
- let secHidGrads = mul (List.map logSigmoid net.SecondHiddenLayer.NetOutputs) (List.map (dot out_grads) (transpose net.OutputLayer.Weights))
+ let secHidGrads = mul (List.map deltaTanH net.SecondHiddenLayer.NetOutputs) (List.map (dot out_grads) (transpose net.OutputLayer.Weights))
  let secHidDeltas = deltas net.LearningRate secHidGrads net.FirstHiddenLayer.NetOutputs
  let secHidPrevDeltasWithM = List.map (smul net.Momentum) net.SecondHiddenLayer.PrevDeltas
  let secHidNewDeltas = List.map2 add secHidDeltas secHidPrevDeltasWithM
@@ -178,7 +175,7 @@ let backPropagate (net:Network) = (* OutputLayer->SecondHiddenLayer->FirstHidden
  let secHidBiasNewDeltas = add secHidBiasDeltas secHidBiasPrevDeltasWithM
  let secHidBiasUpdate = add net.SecondHiddenLayer.Bias secHidBiasNewDeltas
 
- let firstHidGrads = mul (List.map logSigmoid net.FirstHiddenLayer.NetOutputs) (List.map (dot secHidGrads) (transpose net.SecondHiddenLayer.Weights))
+ let firstHidGrads = mul (List.map deltaTanH net.FirstHiddenLayer.NetOutputs) (List.map (dot secHidGrads) (transpose net.SecondHiddenLayer.Weights))
  let firstHidDeltas = deltas net.LearningRate firstHidGrads net.Inputs
  let firstHidPrevDeltasWithM = List.map (smul net.Momentum) net.FirstHiddenLayer.PrevDeltas
  let firstHidNewDeltas = List.map2 add firstHidDeltas firstHidPrevDeltasWithM
@@ -246,14 +243,11 @@ let rec train
   let validated = List.fold2 (funcNet feedForward) netAcc shuffled_testing_s shuffled_testing_i
   let rms_validated_err = networkDistance validated
 
-//  if epoch % 100 = 0 then printfn "%f %f" rms_trained_err rms_validated_err
-  printfn "%f %f" rms_trained_err rms_validated_err
-  
-  let best_trained_err = 0.019999 //*** CONSIDER PASSING TO PARAMETER.
-  let best_test_err = 0.019999
-  let errTresholdMeet = (rms_trained_err < best_trained_err) && (rms_validated_err < best_test_err)
-  if errTresholdMeet then trained
-  else train ((-) epoch 1) trained (training_samples, teaching_inputs) (testing_samples, teaching_testing_inputs)
+  let log path data = File.AppendAllText(path, data)
+
+  let logToDataFile filename =
+   let fullfilepath = @"D:\Projects\AI\cardiotocography\script\"+filename
+   log fullfilepath
 
   (* write error *)
   let errors trained_err validated_err = trained_err + "," + validated_err + "\n"
@@ -274,12 +268,12 @@ let rec train
   train ((-) epoch 1) trained (training_samples, teachingInputs) (testing_samples, testOutputs)
 
 let inputSize = 7;
-let hiddenSize = 12;
+let hiddenSize = 10;
 let outputSize = 13;
 
 let network = {
  LearningRate = 0.001
- Momentum = 0.5
+ Momentum = 0.9
  Inputs = List.replicate inputSize 0.0
  FirstHiddenLayer = {
                      Inputs = List.empty
@@ -320,7 +314,7 @@ let teaching_inputs = data "teaching_inputs.txt"
 let testing_samples = data "testing_samples.txt"
 let test_outputs = data "test_outputs.txt"
 
-let epoch = 1000
+let epoch = 4000
 
 printfn "Training..."
 let trained = train epoch network (training_samples, teaching_inputs) (testing_samples, test_outputs) 
