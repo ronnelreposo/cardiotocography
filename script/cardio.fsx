@@ -268,12 +268,12 @@ let rec train
   train ((-) epoch 1) trained (training_samples, teachingInputs) (testing_samples, testOutputs)
 
 let inputSize = 7;
-let hiddenSize = 10;
+let hiddenSize = 20;
 let outputSize = 13;
 
 let network = {
  LearningRate = 0.001
- Momentum = 0.9
+ Momentum = 0.5
  Inputs = List.replicate inputSize 0.0
  FirstHiddenLayer = {
                      Inputs = List.empty
