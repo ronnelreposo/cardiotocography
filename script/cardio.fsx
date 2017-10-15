@@ -42,17 +42,21 @@ let rec norm xs =
   | hd::tl -> f tl ((square hd)::acc)
  f xs List.empty
 
-///Naive Shuffle List.
-let rec shuffleList count (sysRand:System.Random) (xs:List<'a>) =
- match count with
- | 0 -> xs
- | _ ->
-  let random = sysRand.Next(((-) count 1), xs.Length)
-  let item = List.item random xs
-  let filtered = List.filter (fun a -> a <> item) xs
-  let b, c = List.splitAt random filtered
-  let randomxs = List.append (item::b) (List.rev c)
-  shuffleList ((-) count 1) sysRand randomxs
+///Shuffle List (Fisher Yates Alogrithm).
+let shuffle (rand: System.Random) (xs:List<'a>) =
+ let rec shuffleTo (indexes: int[]) upTo =
+  match upTo with
+  | 0 -> indexes
+  | _ ->
+   let fst = rand.Next(upTo)
+   let temp = indexes.[fst]
+   indexes.[fst] <- indexes.[upTo]
+   indexes.[upTo] <- temp
+   shuffleTo indexes (upTo - 1)
+ let length = xs.Length
+ let indexes = [| 0 .. length - 1 |]
+ let shuffled = shuffleTo indexes (length - 1)
+ List.permute (fun i -> shuffled.[i]) xs
 
 /// Retrieves the value of data on a list given the list of index.
 let dataAtIndex  xs_data xs_index =
@@ -164,7 +168,6 @@ let feedForward net =
                  }
  }
 
-
 let bpOutputLayer n m tOutputs (layer:Layer) =
  let grads = List.map2 (gradient deltaTanH) layer.NetOutputs tOutputs
  let bpDeltas = deltas n grads layer.Inputs
@@ -234,12 +237,12 @@ let rec train
   let rand = new System.Random()
 
   let training_index = [0..(training_samples.Length - 1)]
-  let training_rand_index = shuffleList training_index.Length rand training_index
+  let training_rand_index = shuffle rand training_index
   let shuffled_training_s = dataAtIndex training_samples training_rand_index
   let shuffled_training_i = dataAtIndex teachingInputs training_rand_index
 
   let testing_index = [0..(testing_samples.Length - 1)]
-  let testing_rand_index = shuffleList testing_index.Length rand testing_index
+  let testing_rand_index = shuffle rand testing_index
   let shuffled_testing_s = dataAtIndex testing_samples testing_rand_index
   let shuffled_testing_i = dataAtIndex testOutputs testing_rand_index
 
@@ -318,14 +321,12 @@ let data filename = (* replace with your current directory. *)
  |> Array.toList
  |> List.map csvStrToFloatList
 
-#time
 let training_samples = data "training_samples.txt"
 let teaching_inputs = data "teaching_inputs.txt"
 let testing_samples = data "testing_samples.txt"
 let test_outputs = data "test_outputs.txt"
-#time
 
 let epoch = 1
 
 printfn "Training..."
-//let trained = train epoch network (training_samples, teaching_inputs) (testing_samples, test_outputs) 
+let trained = train epoch network (training_samples, teaching_inputs) (testing_samples, test_outputs)
