@@ -258,20 +258,20 @@ let rec train
    let fullfilepath = @"D:\Projects\AI\cardiotocography\script\"+filename
    log fullfilepath
 
-//  (* write error *)
-//  let errors trained_err validated_err = trained_err + "," + validated_err + "\n"
-//  logToDataFile "errors.txt" <| errors (rms_trained_err.ToString()) (rms_validated_err.ToString())
-//
-//  (* write appropriate parameters.
-//   -h1,h2,output weights and biases. *)
-//  let logNetworkParameters =
-//   (netAcc.FirstHiddenLayer.Weights |> matrixToString) + "," +
-//   (netAcc.FirstHiddenLayer.Bias |> vectorToString) + "," +
-//   (netAcc.SecondHiddenLayer.Weights |> matrixToString) + "," +
-//   (netAcc.SecondHiddenLayer.Bias |> vectorToString) + "," +
-//   (netAcc.OutputLayer.Weights |> matrixToString) + "," +
-//   (netAcc.OutputLayer.Bias |> vectorToString) + "\n"
-//  logToDataFile "weightsAndBiases.txt" <| logNetworkParameters
+  (* write error *)
+  let errors trained_err validated_err = trained_err + "," + validated_err + "\n"
+  logToDataFile "errors.txt" <| errors (rms_trained_err.ToString()) (rms_validated_err.ToString())
+
+  (* write appropriate parameters.
+   -h1,h2,output weights and biases. *)
+  let logNetworkParameters =
+   (netAcc.FirstHiddenLayer.Weights |> matrixToString) + "," +
+   (netAcc.FirstHiddenLayer.Bias |> vectorToString) + "," +
+   (netAcc.SecondHiddenLayer.Weights |> matrixToString) + "," +
+   (netAcc.SecondHiddenLayer.Bias |> vectorToString) + "," +
+   (netAcc.OutputLayer.Weights |> matrixToString) + "," +
+   (netAcc.OutputLayer.Bias |> vectorToString) + "\n"
+  logToDataFile "weightsAndBiases.txt" <| logNetworkParameters
 
   if epoch % 100 = 0 then printfn "%f %f" rms_trained_err rms_validated_err
   train ((-) epoch 1) trained (training_samples, teachingInputs) (testing_samples, testOutputs)
@@ -314,7 +314,7 @@ let network = {
  TargetOutputs = List.replicate outputSize 0.0
 }
 
-let dataToFloatList separator data = Regex.Split(data, separator) |> Array.Parallel.map float |> Array.toList
+let dataToFloatList separator data = Regex.Split(data, separator) |> Array.map float |> Array.toList
 let csvStrToFloatList = dataToFloatList ","
 let data filename = (* replace with your current directory. *)
  File.ReadAllLines(@"D:\Projects\AI\cardiotocography\data and error\"+filename)
