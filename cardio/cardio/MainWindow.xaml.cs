@@ -1,40 +1,38 @@
-﻿using FirstFloor.ModernUI.Windows.Controls;
+﻿using cardio.Ext;
+using FirstFloor.ModernUI.Windows.Controls;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Shapes;
-using static System.Reactive.Linq.Observable;
-using static System.Convert;
-using static System.Array;
-using static System.Math;
-using static System.Threading.Tasks.Task;
 using static cardio.Classifier;
+using static System.Array;
+using static System.Convert;
+using static System.Math;
+using static System.Reactive.Linq.Observable;
+using static System.Threading.Tasks.Task;
 
 namespace cardio
 {
-    public partial class MainWindow: ModernWindow
+    public partial class MainWindow : ModernWindow
     {
-        public MainWindow() {
+        public MainWindow () {
 
             InitializeComponent();
 
-            FromEventPattern(classify_button, "Click")
-                .Select(evt => ( evt.Sender as Button ))
-                .Subscribe(async button =>
+            var sClassifyClicked = FromEventPattern(classify_button, "Click").Select(evt => ( evt.Sender as Button ));
+            var sClickDisabledButon = sClassifyClicked.Select(button => { button.IsEnabled = false; return button; });
+            sClickDisabledButon.Subscribe(async button =>
                 {
-                    var place_val = 3;
-
-                    var lb_convToSec = Round(minToSec(getDoubleValue(lb_tb)), place_val);
+                    const int PlaceVal = 3;
+                    var lb_convToSec = Round(minToSec(getDoubleValue(lb_tb)), PlaceVal);
                     var lb_max = 5;
                     var ac_max = 30;
                     var fm_max = 600;
                     var uc_max = 30;
                     var dl_max = 20;
-
-                    classify_button.IsEnabled = false;
-
-                    var input_norm_xs = new [] {
-                        minmax(lb_convToSec, 1, lb_max),
+                    var normInputs = new[] {
+                        minmax(lb_convToSec, lb_max, 1),
                         minmax(getDoubleValue(ac_tb), ac_max),
                         minmax(getDoubleValue(fm_tb), fm_max),
                         minmax(getDoubleValue(uc_tb), uc_max),
@@ -42,47 +40,64 @@ namespace cardio
                         getDoubleValue(ds_tb),
                         minmax(getDoubleValue(dp_tb), lb_max)
                     };
-
-                    var rounded_input_norm_xs = ConvertAll(input_norm_xs, x => Round(x, place_val));
-
-                    var output_controls_xs = new Rectangle[] { a_rec, b_rec, c_rec, d_rec, e_rec, ad_rec, de_rec, ld_rec, fs_rec, susp_rec, normal_rec, suspect_rec, phato_rec };
-                    var output_xs = Classify(x => x < 0 ? 0 : x * 100, rounded_input_norm_xs);
-                    var task_xs = new Task[output_xs.Length];
-
-                    Func<double, double, bool> condition = (a, b) => a == b;
-
-                    await WhenAll(fmap(0, (value, rec) => progress(0, 1, condition, (a, b) => a - b, rec), task_xs, output_xs, output_controls_xs));
-                    await WhenAll(fmap(0, (value, rec) => progress(ToInt16(value), 1, condition, (a, b) => a + b, rec), task_xs, output_xs, output_controls_xs));
-
-                    classify_button.IsEnabled = true;
+                    Converter<double, double> roundAtPlaceVal = x => Round(x, PlaceVal);
+                    var roundedNormInputs = ConvertAll(normInputs, roundAtPlaceVal);
+                    var outputControls = new[] {
+                        a_rec, b_rec, c_rec,
+                        d_rec, e_rec, ad_rec,
+                        de_rec, ld_rec, fs_rec,
+                        susp_rec, normal_rec,
+                        suspect_rec, phato_rec };
+                    var outputs = Classify(x => x < 0 ? 0 : x * 100, roundedNormInputs);
+                    var clearedOutputControls = outputControls.Select(rec => rec.ResetWidth());
+                    Func<Tuple<double, Rectangle>, Task<Rectangle>> progress = valueAndControl =>
+                     ProgressAsync(ToInt16(valueAndControl.Item1), valueAndControl.Item2, EaseInOutCubic);
+                    var progressed = outputs.Zip(clearedOutputControls, Tuple.Create).Select(progress);
+                    var universe = await WhenAll(progressed);
+                    universe.ToObservable().Take(1).Subscribe(_ => button.IsEnabled = true);
                 });
         }
 
-        double minToSec(double min) => min / 60;
-        double minmax(double value, double max) => value / max;
-        double minmax(double value, double min, double max) => (value - min) / (max - min);
-        double getDoubleValue(TextBox tb) => tb.Text.Equals(string.Empty)? 0 : ToDouble(tb.Text);
-
-        Rectangle changeWidth(double width, Rectangle rec)
+        double minToSec (double min) => min / 60;
+        double minmax (double value, double max, double min = 0) => ( min.Equals(0) ) ? ( value / max ) : ( ( value - min ) / ( max - min ) );
+        double getDoubleValue (TextBox tb)
         {
-            rec.Width = width;
-            return rec;
+            try
+            {
+                var text = tb.Text;
+                return text.Equals(string.Empty) ? 0 : ToDouble(text);
+            }
+            catch ( Exception ) { return 0; }
         }
 
-        async Task<Rectangle> progress(int max, int delay, Func<double, double, bool> cond, Func<double, double, double> delta, Rectangle rec)
+        /// <summary>
+        /// Ease In-Out Cubic Function.
+        /// </summary>
+        readonly Func<double, double> EaseInOutCubic = x => ( x < 0.5 ) ? 4 * x * x * x : ( x - 1 ) * ( 2 * x - 2 ) * ( 2 * x - 2 ) + 1;
+
+        /// <summary>
+        /// Progresses the output (Asyncronously).
+        /// It uses Rectangle and its width to project the maximum value,
+        /// delta as the change value in every step.
+        /// </summary>
+        /// <param name="max">The maximum output value.</param>
+        /// <param name="rec">The Rectangle(Control) to adjusted by its width.</param>
+        /// <param name="delta">The change function. (Used for animation).</param>
+        /// <param name="i">The step index. Zero by default.</param>
+        /// <param name="delay">The step delay. 3 seconds by default.</param>
+        /// <returns>The changed rectangle width.</returns>
+        async Task<Rectangle> ProgressAsync (int max, Rectangle rec, Func<double, double> delta, int i = 0, int delay = 3)
         {
-            if (cond(rec.Width, max)) { return rec; }
-
-            await Delay(delay);
-
-            return await progress(max, delay, cond, delta, changeWidth(delta(rec.Width, 1), rec));
-        }
-
-        Task[] fmap(int i, Func<double, Rectangle, Task> mapper, Task[] acc, double[] d_xs, Rectangle[] pb_xs)
-        {
-            if (i > (acc.Length - 1)) { return acc; }
-            acc[i] = mapper(d_xs[i], pb_xs[i]);
-            return fmap((i + 1), mapper, acc, d_xs, pb_xs);
+            if ( i.Equals(max) ) { return rec; }
+            else
+            {
+                var normi = minmax(i, max);
+                var i_ = delta(normi);
+                var width_ = i_ * max;
+                var rec_ = rec.ChangeWidth(width_);
+                await Delay(delay);
+                return await ProgressAsync(max, rec_, delta, ( i + 1 ));
+            }
         }
     }
 }
