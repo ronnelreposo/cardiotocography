@@ -42,14 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="cardio.exe" size="35752">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="cardio.exe" size="35240">
       <assemblyIdentity name="cardio" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>/pMwk/AGKgOgZi86C7iTusZLe5CJOJ0NShvaWDLNfp8=</dsig:DigestValue>
+        <dsig:DigestValue>kIob7tJP4mmIlWvSdZCMBUUGeEyyT93BjR5HrlhooXo=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
