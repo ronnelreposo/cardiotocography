@@ -1,4 +1,4 @@
-cardio/\.vs/
-cardio/cardio/bin/
-cardio/cardio/obj/
-script/*.txt
+/cardio/\.vs/
+/cardio/cardio/bin/
+/cardio/cardio/obj/
+/script/*.txt
