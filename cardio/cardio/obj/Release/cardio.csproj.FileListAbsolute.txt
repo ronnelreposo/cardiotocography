@@ -15,3 +15,23 @@ C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\obj\Release\ca
 C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\obj\Release\cardio.exe
 C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\obj\Release\cardio.pdb
 C:\Users\Arya\Documents\Visual Studio 2015\Projects\cardio\cardio\obj\Release\cardio.csprojResolveAssemblyReference.cache
+D:\Projects\AI\cardiotocography\cardio\cardio\bin\Release\cardio.exe.manifest
+D:\Projects\AI\cardiotocography\cardio\cardio\bin\Release\cardio.application
+D:\Projects\AI\cardiotocography\cardio\cardio\bin\Release\cardio.exe
+D:\Projects\AI\cardiotocography\cardio\cardio\bin\Release\cardio.pdb
+D:\Projects\AI\cardiotocography\cardio\cardio\bin\Release\FirstFloor.ModernUI.dll
+D:\Projects\AI\cardiotocography\cardio\cardio\bin\Release\System.Reactive.Core.dll
+D:\Projects\AI\cardiotocography\cardio\cardio\bin\Release\System.Reactive.Interfaces.dll
+D:\Projects\AI\cardiotocography\cardio\cardio\bin\Release\System.Reactive.Linq.dll
+D:\Projects\AI\cardiotocography\cardio\cardio\bin\Release\FirstFloor.ModernUI.xml
+D:\Projects\AI\cardiotocography\cardio\cardio\obj\Release\cardio.csprojResolveAssemblyReference.cache
+D:\Projects\AI\cardiotocography\cardio\cardio\obj\Release\MainWindow.baml
+D:\Projects\AI\cardiotocography\cardio\cardio\obj\Release\App.baml
+D:\Projects\AI\cardiotocography\cardio\cardio\obj\Release\MainWindow.g.cs
+D:\Projects\AI\cardiotocography\cardio\cardio\obj\Release\App.g.cs
+D:\Projects\AI\cardiotocography\cardio\cardio\obj\Release\cardio_MarkupCompile.cache
+D:\Projects\AI\cardiotocography\cardio\cardio\obj\Release\cardio.g.resources
+D:\Projects\AI\cardiotocography\cardio\cardio\obj\Release\cardio.exe.manifest
+D:\Projects\AI\cardiotocography\cardio\cardio\obj\Release\cardio.application
+D:\Projects\AI\cardiotocography\cardio\cardio\obj\Release\cardio.exe
+D:\Projects\AI\cardiotocography\cardio\cardio\obj\Release\cardio.pdb
