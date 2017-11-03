@@ -14,19 +14,13 @@ let transpose xss =
     f <| List.map (List.skip 1) xss <| (List.map List.head xss)::acc
  f xss List.empty
 
-///Operation of two Vectors.
-let vecOp f xs ys =
- match xs, ys with
- | [], [] -> []
- | [], hd::tl -> ys
- | a::b, [] -> xs
- | a::b, c::d -> List.map2 f xs ys
-
 /// The Dot Product of xs and ys.
 let dot xs ys = List.map2 (*) xs ys |> List.sum
 
+/// Square of a number (x).
 let square x = x * x
 
+/// Euclidean Distance.
 let distance xs ys =
   (List.map2 (-) xs ys)
   |> List.map square
@@ -34,29 +28,23 @@ let distance xs ys =
   |> sqrt
   |> (*) 0.5
 
-/// Euclid Norm.
-let rec norm xs =
- let rec f xs acc =
-  match xs with
-  | [] -> List.sum acc |> sqrt
-  | hd::tl -> f tl ((square hd)::acc)
- f xs List.empty
-
 ///Shuffle List (Fisher Yates Alogrithm).
-let shuffle (rand: System.Random) (xs:List<'a>) =
- let rec shuffleTo (indexes: int[]) upTo =
-  match upTo with
-  | 0 -> indexes
-  | _ ->
-   let fst = rand.Next(upTo)
-   let temp = indexes.[fst]
-   indexes.[fst] <- indexes.[upTo]
-   indexes.[upTo] <- temp
-   shuffleTo indexes (upTo - 1)
- let length = xs.Length
- let indexes = [| 0 .. length - 1 |]
- let shuffled = shuffleTo indexes (length - 1)
- List.permute (fun i -> shuffled.[i]) xs
+let shuffle xs =
+ let f (rand: System.Random) (xs:List<'a>) =
+  let rec shuffleTo (indexes: int[]) upTo =
+   match upTo with
+   | 0 -> indexes
+   | _ ->
+    let fst = rand.Next(upTo)
+    let temp = indexes.[fst]
+    indexes.[fst] <- indexes.[upTo]
+    indexes.[upTo] <- temp
+    shuffleTo indexes (upTo - 1)
+  let length = xs.Length
+  let indexes = [| 0 .. length - 1 |]
+  let shuffled = shuffleTo indexes (length - 1)
+  List.permute (fun i -> shuffled.[i]) xs
+ f (System.Random()) xs
 
 /// Retrieves the value of data on a list given the list of index.
 let dataAtIndex  xs_data xs_index =
@@ -76,7 +64,10 @@ let scalarToVecOp mapper x ys = List.map (mapper x) ys
 /// mapToSecondList (+) ["1"; "2"; "3"] ["2"; "3", "4"] =
 /// [ ["12"; "13"; "14"]; ["22"; "23"; "24"]; ["32"; "33"; "34"] ].
 let mapToSecondList mapper xs ys =
- let rec f mapper xs ys acc = match xs with | [] -> List.rev acc | hd::tl -> f mapper tl ys <| (List.map (mapper hd) ys)::acc
+ let rec f mapper xs ys acc =
+  match xs with
+  | [] -> List.rev acc
+  | hd::tl -> f mapper tl ys <| (List.map (mapper hd) ys)::acc
  f mapper xs ys List.empty
 
 /// Scalar Vector Multiplication.
@@ -99,7 +90,10 @@ let deltaTanH x = (/) 1.0 <| (*) (cosh x) (cosh x)
 
 /// Generate List of Random Elements.
 let listRandElems count =
- let rec f (rand:System.Random) acc c = match c with | 0 -> acc | _ -> f rand <| rand.NextDouble()::acc <| (-) c 1
+ let rec f (rand:System.Random) acc c =
+  match c with
+  | 0 -> acc
+  | _ -> f rand <| rand.NextDouble()::acc <| (-) c 1
  f (System.Random()) List.empty count
 
 /// Gradient. dFunc is the derivative of forward squashing function.
@@ -110,14 +104,6 @@ let weightedSum inputs weights bias = add bias <| List.map (dot inputs) weights
 
 /// Delta or The Rate of Change.
 let deltas learningRate gradients netOutputs = List.map <| smul learningRate <| mapToSecondList (*) gradients netOutputs
-
-let vectorToString (vector:List<float>) =
- let concatCommaSep (x:float) s = x.ToString("F6") + "," + s
- List.foldBack concatCommaSep vector ""
-
-let rec matrixToString (matrix:List<List<float>>) =
- let concatStringVector vector s = vectorToString vector + ";" + s
- List.foldBack concatStringVector matrix ""
 
 /// Represents a Network Layer.
 type Layer = {
@@ -141,6 +127,7 @@ type Network = {
  TargetOutputs: List<float>
  }
 
+/// Feed Forward Network.
 let feedForward net =
 
  let firstHiddenWeightedSum = weightedSum net.Inputs net.FirstHiddenLayer.Weights net.FirstHiddenLayer.Bias
@@ -168,7 +155,9 @@ let feedForward net =
                  }
  }
 
+/// Backpropagate at Output Layer.
 let bpOutputLayer n m tOutputs (layer:Layer) =
+
  let grads = List.map2 (gradient deltaTanH) layer.NetOutputs tOutputs
  let bpDeltas = deltas n grads layer.Inputs
  let prevDeltasWithM = List.map (smul m) layer.PrevDeltas
@@ -187,7 +176,9 @@ let bpOutputLayer n m tOutputs (layer:Layer) =
    BiasPrevDeltas = biasNewDeltas
  }
 
+/// Backpropagate at Hidden Layer.
 let bpHiddenLayer n m layer nextLayer =
+
  let grads = mul (List.map deltaTanH layer.NetOutputs) (List.map (dot nextLayer.Gradients) (transpose nextLayer.Weights))
  let bpDeltas = deltas n grads layer.Inputs
  let prevDeltasWithM = List.map (smul m) layer.PrevDeltas
@@ -206,6 +197,7 @@ let bpHiddenLayer n m layer nextLayer =
    BiasPrevDeltas = biasNewDeltas
  }
 
+/// Backpropagate Network.
 let backPropagate (net:Network) =
  let bpOutputLayer = bpOutputLayer net.LearningRate net.Momentum net.TargetOutputs net.OutputLayer
  let bpHidLayerWithHyperParams = bpHiddenLayer net.LearningRate net.Momentum
@@ -218,63 +210,58 @@ let backPropagate (net:Network) =
    FirstHiddenLayer =  bpFirstHidLayer
  }
 
-let rec train
- epoch
- netAcc
- ((training_samples:List<List<float>>), (teachingInputs:List<List<float>>))
- ((testing_samples:List<List<float>>), (testOutputs:List<List<float>>))
- =
- let trainOnce = feedForward >> backPropagate
+(* Utility Functions ---------------------------------------------- *)
 
- let networkDistance network = distance network.TargetOutputs network.OutputLayer.NetOutputs
+let vectorToString (vector:List<float>) =
+ let concatCommaSep (x:float) s = x.ToString("F6") + "," + s
+ List.foldBack concatCommaSep vector ""
 
+let rec matrixToString (matrix:List<List<float>>) =
+ let concatStringVector vector s = vectorToString vector + ";" + s
+ List.foldBack concatStringVector matrix ""
+
+let splitToIO net = List.splitAt net.Inputs.Length
+
+let validate net data =
+ let inputs, targets = splitToIO net data
+ { net with Inputs = inputs; TargetOutputs = targets } |> feedForward
+
+let trainOnce net data =
+ let inputs, targets = splitToIO net data
+ { net with Inputs = inputs; TargetOutputs = targets } |> feedForward |> backPropagate
+
+let networkDistance network = distance network.TargetOutputs network.OutputLayer.NetOutputs
+
+let log path data = File.AppendAllText(path, data)
+
+let logToDataFile path filename =
+   let fullfilepath = path + filename
+   log fullfilepath
+(* ---------------------------------------------------------------- *)
+
+/// Train Network.
+let rec train epoch kfold netAcc (data_xs:List<List<float>>) =
  match epoch with
  | 0 -> netAcc
  | _ ->
-
-  let funcNet func net inputs targets = func { net with Inputs = inputs; TargetOutputs = targets }
-
-  let rand = new System.Random()
-
-  let training_index = [0..(training_samples.Length - 1)]
-  let training_rand_index = shuffle rand training_index
-  let shuffled_training_s = dataAtIndex training_samples training_rand_index
-  let shuffled_training_i = dataAtIndex teachingInputs training_rand_index
-
-  let testing_index = [0..(testing_samples.Length - 1)]
-  let testing_rand_index = shuffle rand testing_index
-  let shuffled_testing_s = dataAtIndex testing_samples testing_rand_index
-  let shuffled_testing_i = dataAtIndex testOutputs testing_rand_index
-
-  let trained = List.fold2 (funcNet trainOnce) netAcc shuffled_training_s shuffled_training_i
-  let rms_trained_err = networkDistance trained
-
-  let validated = List.fold2 (funcNet feedForward) netAcc shuffled_testing_s shuffled_testing_i
-  let rms_validated_err = networkDistance validated
-
-  let log path data = File.AppendAllText(path, data)
-
-  let logToDataFile filename =
-   let fullfilepath = @"D:\Projects\AI\cardiotocography\script\"+filename
-   log fullfilepath
-
-  (* write error *)
-  let errors trained_err validated_err = trained_err + "," + validated_err + "\n"
-  logToDataFile "errors.txt" <| errors (rms_trained_err.ToString()) (rms_validated_err.ToString())
-
-  (* write appropriate parameters.
-   -h1,h2,output weights and biases. *)
-  let logNetworkParameters =
-   (netAcc.FirstHiddenLayer.Weights |> matrixToString) + "," +
-   (netAcc.FirstHiddenLayer.Bias |> vectorToString) + "," +
-   (netAcc.SecondHiddenLayer.Weights |> matrixToString) + "," +
-   (netAcc.SecondHiddenLayer.Bias |> vectorToString) + "," +
-   (netAcc.OutputLayer.Weights |> matrixToString) + "," +
-   (netAcc.OutputLayer.Bias |> vectorToString) + "\n"
-  logToDataFile "weightsAndBiases.txt" <| logNetworkParameters
-
-  if epoch % 100 = 0 then printfn "%f %f" rms_trained_err rms_validated_err
-  train ((-) epoch 1) trained (training_samples, teachingInputs) (testing_samples, testOutputs)
+  let shuffledAllData = shuffle data_xs
+  let trainSet, testSet = List.splitAt kfold shuffledAllData
+  let trained = List.fold trainOnce netAcc trainSet
+  let trainedRms = networkDistance trained
+  let validated = List.fold validate netAcc testSet
+  let validatedRms = networkDistance validated
+  let logToScriptsDataFile = logToDataFile @"D:\Projects\AI\cardiotocography\script\"
+  if epoch % 100 = 0 then
+   printfn "%f %f" trainedRms validatedRms
+   logToScriptsDataFile "errors.dat" <| (string trainedRms) + "," + (string validatedRms) + "\n"
+   logToScriptsDataFile "weightsAndBiases.dat" <|
+    (netAcc.FirstHiddenLayer.Weights |> matrixToString) + "," +
+    (netAcc.FirstHiddenLayer.Bias |> vectorToString) + "," +
+    (netAcc.SecondHiddenLayer.Weights |> matrixToString) + "," +
+    (netAcc.SecondHiddenLayer.Bias |> vectorToString) + "," +
+    (netAcc.OutputLayer.Weights |> matrixToString) + "," +
+    (netAcc.OutputLayer.Bias |> vectorToString) + "\n"
+  train ((-) epoch 1) kfold trained data_xs
 
 let inputSize = 7;
 let hiddenSize = 20;
@@ -321,12 +308,10 @@ let data filename = (* replace with your current directory. *)
  |> Array.toList
  |> List.map csvStrToFloatList
 
-let training_samples = data "training_samples.txt"
-let teaching_inputs = data "teaching_inputs.txt"
-let testing_samples = data "testing_samples.txt"
-let test_outputs = data "test_outputs.txt"
+let alldata = data "data.csv"
 
-let epoch = 1
+let kfold = 10
+let epoch = 5000
 
 printfn "Training..."
-let trained = train epoch network (training_samples, teaching_inputs) (testing_samples, test_outputs)
+let trained = train epoch kfold network alldata
