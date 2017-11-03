@@ -4,7 +4,6 @@
 ## Features ##
 **FHR** and **NSP** classification.
 
-
 ## Installation ##
 
 - **Users** If you just want to run the application. You can have the [Installer](https://github.com/ronnelreposo/cardiotocography/tree/master/cardio/cardio/publish).
@@ -41,3 +40,13 @@ Dataset from: [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/d
 ## License ##
  
 The project is licensed under the **MIT** license - see the LICENSE file for details.
+
+## Screenshots ##
+
+  - **Training and Validation Error Measurement**
+  
+    ![alt text](https://github.com/ronnelreposo/cardiotocography/blob/master/data%20and%20error/screenshots/trainingError.png)
+  
+  - **App**
+  
+    ![alt text](https://github.com/ronnelreposo/cardiotocography/blob/master/data%20and%20error/screenshots/app.png)
