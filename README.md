@@ -40,4 +40,4 @@ Dataset from: [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/d
 
 ## License ##
  
-The project is licensed under the **MIT** license.
+The project is licensed under the **MIT** license - see the LICENSE file for details.
