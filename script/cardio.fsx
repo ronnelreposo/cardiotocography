@@ -264,7 +264,7 @@ let rec train epoch kfold netAcc (data_xs:List<List<float>>) =
   train ((-) epoch 1) kfold trained data_xs
 
 let inputSize = 7;
-let hiddenSize = 20;
+let hiddenSize = 10;
 let outputSize = 13;
 
 let network = {

@@ -48,13 +48,14 @@ namespace cardio
                         de_rec, ld_rec, fs_rec,
                         susp_rec, normal_rec,
                         suspect_rec, phato_rec };
-                    var outputs = Classify(x => x < 0 ? 0 : x * 100, roundedNormInputs);
+                    Func<double, double> minmaxPercent = x => minmax(x, 1, -1) * 100;
+                    var outputs = Classify(minmaxPercent, roundedNormInputs);
                     var clearedOutputControls = outputControls.Select(rec => rec.ResetWidth());
                     Func<Tuple<double, Rectangle>, Task<Rectangle>> progress = valueAndControl =>
                      ProgressAsync(ToInt16(valueAndControl.Item1), valueAndControl.Item2, EaseInOutCubic);
                     var progressed = outputs.Zip(clearedOutputControls, Tuple.Create).Select(progress);
-                    var universe = await WhenAll(progressed);
-                    universe.ToObservable().Take(1).Subscribe(_ => button.IsEnabled = true);
+                    var allTask = await WhenAll(progressed);
+                    allTask.ToObservable().Take(1).Subscribe(_ => button.IsEnabled = true);
                 });
         }
 
