@@ -126,7 +126,7 @@ namespace lin
             /* Scape code contracts. ---- */
 
             if ( i > ( matrix.Length - 1 ) ) { return acc; }
-            acc[i] = VectorDotProduct(vector, matrix[i]);
+            acc[i] = VectorMul(vector, matrix[i]).Sum();
 
             return vector.VectorDotProductMatrix(matrix, acc, ( i + 1 ));
         }
