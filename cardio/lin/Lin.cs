@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LinTest
+namespace lin
 {
     /// <summary>
     /// Represents Linear Algebra Vector functions.

@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace LinTest
+namespace lin
 {
     [TestClass]
     public class LinTest
