@@ -126,7 +126,8 @@ namespace lin
             /* Scape code contracts. ---- */
 
             if ( i > ( matrix.Length - 1 ) ) { return acc; }
-            acc[i] = VectorMul(vector, matrix[i]).Sum();
+
+            acc[i] = vector.VectorMul(matrix[i]).Sum();
 
             return vector.VectorDotProductMatrix(matrix, acc, ( i + 1 ));
         }
@@ -143,7 +144,7 @@ namespace lin
             Requires(vector != null, "The given vector should must not be null.");
             Requires(matrix != null, "The given matrix should must not be null.");
 
-            return vector.VectorDotProductMatrix(matrix, new double[vector.Length]);
+            return vector.VectorDotProductMatrix(matrix, new double[matrix.Length]);
         }
 
     } /* end class. */

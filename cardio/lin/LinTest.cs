@@ -16,7 +16,8 @@ namespace lin
         double[][] matrix = {
             new double [] { 1, 2, 3 },
             new double [] { 2, 3, 4 },
-            new double [] { 1, 2, 3 }
+            new double [] { 1, 2, 3 },
+            new double [] { 2, 3, 4 }
         };
 
         [TestMethod]
@@ -78,9 +79,12 @@ namespace lin
         {
             var aDot = vectorA.VectorDotProduct(vectorA);
             var bDot = vectorA.VectorDotProduct(vectorB);
+
+            Assert.AreEqual(14, aDot);
+            Assert.AreEqual(20, bDot);
              
             var output = vectorA.VectorDotProductMatrix(matrix);
-            var expected = new double[] { aDot, bDot, aDot };
+            var expected = new double[] { aDot, bDot, aDot, bDot };
 
             CollectionAssert.AreEqual(output, expected);
         }
