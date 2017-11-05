@@ -100,7 +100,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="Ext\RectangleExt.cs" />
-    <Compile Include="Lin.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -123,6 +122,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\lin\lin.csproj">
+      <Project>{dbcc772b-80e2-4996-8a53-2a9f90f0c232}</Project>
+      <Name>lin</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

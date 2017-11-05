@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Linq;
 using static System.Math;
+using static LinTest.Lin<double, double>;
 
 namespace cardio
 {
     internal struct Classifier
     {
-        static double[] mulxs (double[] xs, double[] ys) => Lin<double, double>.opxs2(( (x, y) => x * y ), 0, ( new double[xs.Length] ), xs, ys);
+        static double[] mulxs (double[] xs, double[] ys) => opxs2(( (x, y) => x * y ), 0, ( new double[xs.Length] ), xs, ys);
 
-        static double[] addxs (double[] xs, double[] ys) => Lin<double, double>.opxs2(( (x, y) => x + y ), 0, ( new double[xs.Length] ), xs, ys);
+        static double[] addxs (double[] xs, double[] ys) => opxs2(( (x, y) => x + y ), 0, ( new double[xs.Length] ), xs, ys);
 
         static double[] ws (int i, double[] acc, double[] i_xs, double[][] ws_xs)
         {
@@ -81,6 +82,6 @@ namespace cardio
             return output;
         }
 
-        internal static double[] Classify (Func<double, double> percentConv, double[] inp_xs) => Lin<double, double>.mapxs(percentConv, ff(ws, Lin<double, double>.mapxs, inp_xs));
+        internal static double[] Classify (Func<double, double> percentConv, double[] inp_xs) => mapxs(percentConv, ff(ws, mapxs, inp_xs));
     }
 }
