@@ -21,10 +21,13 @@ namespace cardio
             InitializeComponent();
 
             var sClassifyClicked = FromEventPattern(classify_button, "Click").Select(evt => ( evt.Sender as Button ));
+
             var sClickDisabledButon = sClassifyClicked.Select(button => { button.IsEnabled = false; return button; });
+
             sClickDisabledButon.Subscribe(async button =>
                 {
                     const int PlaceVal = 3;
+
                     var lb_convToSec = Round(minToSec(getDoubleValue(lb_tb)), PlaceVal);
                     var lb_max = 5;
                     var ac_max = 30;
@@ -40,27 +43,57 @@ namespace cardio
                         getDoubleValue(ds_tb),
                         minmax(getDoubleValue(dp_tb), lb_max)
                     };
+
                     Converter<double, double> roundAtPlaceVal = x => Round(x, PlaceVal);
+
                     var roundedNormInputs = ConvertAll(normInputs, roundAtPlaceVal);
+
                     var outputControls = new[] {
                         a_rec, b_rec, c_rec,
                         d_rec, e_rec, ad_rec,
                         de_rec, ld_rec, fs_rec,
                         susp_rec, normal_rec,
                         suspect_rec, phato_rec };
+
                     Func<double, double> minmaxPercent = x => minmax(x, 1, -1) * 100;
+
                     var outputs = Classify(minmaxPercent, roundedNormInputs);
+
                     var clearedOutputControls = outputControls.Select(rec => rec.ResetWidth());
+
                     Func<Tuple<double, Rectangle>, Task<Rectangle>> progress = valueAndControl =>
                      ProgressAsync(ToInt16(valueAndControl.Item1), valueAndControl.Item2, EaseInOutCubic);
-                    var progressed = outputs.Zip(clearedOutputControls, Tuple.Create).Select(progress);
-                    var allTask = await WhenAll(progressed);
-                    allTask.ToObservable().Take(1).Subscribe(_ => button.IsEnabled = true);
-                });
-        }
 
+                    var progressed = outputs.Zip(clearedOutputControls, Tuple.Create).Select(progress);
+
+                    (await WhenAll(progressed))
+                    .ToObservable()
+                    .Take(1)
+                    .Subscribe(_ => button.IsEnabled = true);
+                });
+        } /* end constructor. */
+
+        /// <summary>
+        /// Converts minutes to second.
+        /// </summary>
+        /// <param name="min">minute value.</param>
+        /// <returns>converted minutes value.</returns>
         double minToSec (double min) => min / 60;
+
+        /// <summary>
+        /// Normalize the value from 0 to 1.
+        /// </summary>
+        /// <param name="value">The given value to be normalized.</param>
+        /// <param name="max">The given maximum value.</param>
+        /// <param name="min">The given minimum value.</param>
+        /// <returns>scaled/normalized value.</returns>
         double minmax (double value, double max, double min = 0) => ( min.Equals(0) ) ? ( value / max ) : ( ( value - min ) / ( max - min ) );
+
+        /// <summary>
+        /// Converts the value of textbox to double.
+        /// </summary>
+        /// <param name="tb">The given textbox.</param>
+        /// <returns>the converted value.</returns>
         double getDoubleValue (TextBox tb)
         {
             try
@@ -96,7 +129,9 @@ namespace cardio
                 var i_ = delta(normi);
                 var width_ = i_ * max;
                 var rec_ = rec.ChangeWidth(width_);
+
                 await Delay(delay);
+
                 return await ProgressAsync(max, rec_, delta, ( i + 1 ));
             }
         }

@@ -16,7 +16,13 @@ namespace cardio.Ext
             return rec;
         }
 
-        internal static Rectangle ResetWidth(this Rectangle rec, double defaultWidth = 0)
+        /// <summary>
+        /// Resets the Width of the Rectrangle to default width.
+        /// </summary>
+        /// <param name="rec">the given rectangle.</param>
+        /// <param name="defaultWidth">initialized to 0.</param>
+        /// <returns>resetted rectangle.</returns>
+        internal static Rectangle ResetWidth (this Rectangle rec, double defaultWidth = 0)
         {
             rec.Width = defaultWidth;
             return rec;
