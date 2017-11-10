@@ -1,28 +1,31 @@
 ﻿using System;
 using System.Linq;
 using static System.Math;
+using lin;
 
 namespace cardio
 {
-    internal struct Classifier
+    /// <summary>
+    /// Represents as Classifier Engine.
+    /// </summary>
+    internal static class Classifier
     {
-        static double[] mulxs (double[] xs, double[] ys) => Lin<double, double>.opxs2(( (x, y) => x * y ), 0, ( new double[xs.Length] ), xs, ys);
+        /// <summary>
+        /// Weighted Sum with Bias.
+        /// </summary>
+        /// <param name="inputVector">Input Vector.</param>
+        /// <param name="weightsMatrix">Weights Matrix.</param>
+        /// <param name="biasVector">Bias Vector.</param>
+        /// <returns>Weigted Sum Vector.</returns>
+        static double[] biasedWeightedSum (double[] inputVector, double[][] weightsMatrix, double[] biasVector) =>
+            biasVector.VectorAdd(inputVector.VectorDotProductMatrix(weightsMatrix));
 
-        static double[] addxs (double[] xs, double[] ys) => Lin<double, double>.opxs2(( (x, y) => x + y ), 0, ( new double[xs.Length] ), xs, ys);
-
-        static double[] ws (int i, double[] acc, double[] i_xs, double[][] ws_xs)
-        {
-            if ( i > ( ws_xs.Length - 1 ) ) { return acc; }
-            acc[i] = mulxs(i_xs, ws_xs[i]).Sum();
-            return ws(( i + 1 ), acc, i_xs, ws_xs);
-        }
-
-        static double[] ws (double[] i_xs, double[][] ws_xss, double[] b_xs) => addxs(b_xs, ( ws(0, ( new double[ws_xss.Length] ), i_xs, ws_xss) ));
-
-        static double[] ff (
-            Func<double[], double[][], double[], double[]> f,
-            Func<Func<double, double>, double[], double[]> fmap,
-            double[] inputs)
+        /// <summary>
+        /// Classifier Engine.
+        /// </summary>
+        /// <param name="inputVector">The Input Vector.</param>
+        /// <returns>Output Class Vector.</returns>
+        static double[] classify (double[] inputVector)
         {
             var firstHiddenLayerWeights = new double[][]
             {
@@ -38,7 +41,7 @@ namespace cardio
                 new[] { 0.289060,0.209365,0.135112,0.031238,0.063794,0.036886,0.736910 }
             };
             var firstHiddenLayerBias = new[] { -1.183110, 0.215782, -0.072329, 0.421725, -0.027928, -0.659639, -1.694621, -0.095888, -1.114419, 0.025710 };
-            var firstHiddenWeightedSum = f(inputs, firstHiddenLayerWeights, firstHiddenLayerBias);
+            var firstHiddenWeightedSum = biasedWeightedSum(inputVector, firstHiddenLayerWeights, firstHiddenLayerBias);
             var firstHiddenNetOutputs = firstHiddenWeightedSum.Select(Tanh).ToArray();
 
             var secHiddenLayerWeights = new double[][]
@@ -55,7 +58,7 @@ namespace cardio
                 new[] { 0.640074,-1.557197,0.073825,0.493217,0.574084,0.710434,0.057439,-0.727300,0.127141,0.366996 },
             };
             var secHiddenLayerBias = new[] { 0.129653, 0.511955, 0.307257, 0.378682, 0.209885, -0.294118, -0.549358, 0.163794, -0.324625, 0.485924 };
-            var secHiddenWeightedSum = f(firstHiddenNetOutputs, secHiddenLayerWeights, secHiddenLayerBias);
+            var secHiddenWeightedSum = biasedWeightedSum(firstHiddenNetOutputs, secHiddenLayerWeights, secHiddenLayerBias);
             var secHiddenNetOutputs = secHiddenWeightedSum.Select(Tanh).ToArray();
 
             var outputLayerWeights = new double[][]
@@ -75,12 +78,16 @@ namespace cardio
                 new[] { 0.815792,0.931031,-0.179969,0.657107,0.450946,0.103969,-0.027498,-0.190065,0.086145,1.419796 },
             };
             var outputBias = new[] { 0.520434, 0.444391, 0.284465, 0.265100, 0.273132, 0.148382, 0.685081, 0.702207, 0.352506, 0.304391, 0.630367, 0.881243, 0.220049 };
-            var outputWeigtedSum = f(secHiddenNetOutputs, outputLayerWeights, outputBias);
-            var output = outputWeigtedSum.Select(Tanh).ToArray();
+            var outputWeigtedSum = biasedWeightedSum(secHiddenNetOutputs, outputLayerWeights, outputBias);
+            return outputWeigtedSum.Select(Tanh).ToArray();
+        } /* end classifier method. */
 
-            return output;
-        }
-
-        internal static double[] Classify (Func<double, double> percentConv, double[] inp_xs) => Lin<double, double>.mapxs(percentConv, ff(ws, Lin<double, double>.mapxs, inp_xs));
-    }
-}
+        /// <summary>
+        /// Classifier Engine Facade.
+        /// </summary>
+        /// <param name="percentConv">Percent Value Converter.</param>
+        /// <param name="inputVector">The InputVector</param>
+        /// <returns>Output Class Vector.</returns>
+        internal static double[] Classify (Func<double, double> percentConv, double[] inputVector) => classify(inputVector).VectorMap(percentConv);
+    } /* end class. */
+} /* end namespace. */

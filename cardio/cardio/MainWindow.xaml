@@ -27,7 +27,7 @@
             <ColumnDefinition Width="100"/>
 
             <ColumnDefinition Width="10"/>
-            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="250"/>
 
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="100"/>
@@ -41,13 +41,13 @@
             <ColumnDefinition Width="10"/>
         </Grid.ColumnDefinitions>
 
-        <TextBlock Text="FHR baseline (beats/min) | LB:" Grid.Column="1" Grid.Row="1" TextAlignment="Right" />
-        <TextBlock Text="Acceleration/sec | AC:" Grid.Column="1" Grid.Row="2" TextAlignment="Right" />
-        <TextBlock Text="Fetal Movements/sec | FM:" Grid.Column="1" Grid.Row="3" TextAlignment="Right" />
-        <TextBlock Text="Uterine Contractions/sec | UC:" Grid.Column="1" Grid.Row="4" TextAlignment="Right" />
-        <TextBlock Text="Light Decelerations/sec | DL:" Grid.Column="1" Grid.Row="5" TextAlignment="Right" />
-        <TextBlock Text="Severe Decelerations/sec | DS:" Grid.Column="1" Grid.Row="6" TextAlignment="Right" />
-        <TextBlock Text="Prolongued Decelerations/sec | DP:" Grid.Column="1" Grid.Row="7" TextAlignment="Right" />
+        <TextBlock Text="FHR baseline (beats/min):" Grid.Column="1" Grid.Row="1" TextAlignment="Right" />
+        <TextBlock Text="Acceleration/sec:" Grid.Column="1" Grid.Row="2" TextAlignment="Right" />
+        <TextBlock Text="Fetal Movements/sec:" Grid.Column="1" Grid.Row="3" TextAlignment="Right" />
+        <TextBlock Text="Uterine Contractions/sec:" Grid.Column="1" Grid.Row="4" TextAlignment="Right" />
+        <TextBlock Text="Light Decelerations/sec:" Grid.Column="1" Grid.Row="5" TextAlignment="Right" />
+        <TextBlock Text="Severe Decelerations/sec:" Grid.Column="1" Grid.Row="6" TextAlignment="Right" />
+        <TextBlock Text="Prolongued Decelerations/sec:" Grid.Column="1" Grid.Row="7" TextAlignment="Right" />
 
         <TextBox x:Name="lb_tb" Grid.Column="3" HorizontalAlignment="Left" Height="23" Grid.Row="1" VerticalAlignment="Top" Width="100"/>
         <TextBox x:Name="ac_tb" Grid.Column="3" HorizontalAlignment="Left" Height="23" Grid.Row="2" VerticalAlignment="Top" Width="100"/>
@@ -59,17 +59,17 @@
 
         <Button x:Name="classify_button" Content="Classify" Grid.Column="3" Grid.Row="8" />
 
-        <TextBlock Grid.Column="5" Grid.Row="1" Text="Calm Sleep | A:" TextAlignment="Right" />
-        <TextBlock Grid.Column="5" Grid.Row="2" Text="REM Sleep | B:" TextAlignment="Right" />
-        <TextBlock Grid.Column="5" Grid.Row="3" Text="Calm Vigilance | C:" TextAlignment="Right" />
-        <TextBlock Grid.Column="5" Grid.Row="4" Text="Active Vigilance | D:" TextAlignment="Right" />
-        <TextBlock Grid.Column="5" Grid.Row="5" Text="Shift (A or Susp with shifts) | E:" TextAlignment="Right" />
-        <TextBlock Grid.Column="5" Grid.Row="6" Text="Accelerative/Decelerative (Stress Situation) | AD:" TextAlignment="Right" />
-        <TextBlock Grid.Column="5" Grid.Row="7" Text="Decelerative (Vagal Stimulation) | DE:" TextAlignment="Right" />
-        <TextBlock Grid.Column="5" Grid.Row="8" Text="Largely Decelerative | LD:" TextAlignment="Right" />
-        <TextBlock Grid.Column="5" Grid.Row="9" Text="Flat-sinusoidal (Phatological State) | FS:" TextAlignment="Right" />
-        <TextBlock Grid.Column="5" Grid.Row="10" Text="Suspect | SUSP:" TextAlignment="Right" />
-        
+        <TextBlock Grid.Column="5" Grid.Row="1" Text="Calm Sleep:" TextAlignment="Right" />
+        <TextBlock Grid.Column="5" Grid.Row="2" Text="REM Sleep:" TextAlignment="Right" />
+        <TextBlock Grid.Column="5" Grid.Row="3" Text="Calm Vigilance:" TextAlignment="Right" />
+        <TextBlock Grid.Column="5" Grid.Row="4" Text="Active Vigilance:" TextAlignment="Right" />
+        <TextBlock Grid.Column="5" Grid.Row="5" Text="Shift (Calm Sleep or Suspect):" TextAlignment="Right" />
+        <TextBlock Grid.Column="5" Grid.Row="6" Text="Accelerative/Decelerative (Stress Situation):" TextAlignment="Right" />
+        <TextBlock Grid.Column="5" Grid.Row="7" Text="Decelerative (Vagal Stimulation):" TextAlignment="Right" />
+        <TextBlock Grid.Column="5" Grid.Row="8" Text="Largely Decelerative:" TextAlignment="Right" />
+        <TextBlock Grid.Column="5" Grid.Row="9" Text="Flat-sinusoidal (Phatological State):" TextAlignment="Right" />
+        <TextBlock Grid.Column="5" Grid.Row="10" Text="Suspect:" TextAlignment="Right" />
+
         <Rectangle x:Name="a_rec" Grid.Column="7" Fill="#FF1BA1E2" HorizontalAlignment="Left" Height="10" Grid.Row="1" VerticalAlignment="Center" Width="0" />
         <Rectangle x:Name="b_rec" Grid.Column="7" Fill="#FF1BA1E2" HorizontalAlignment="Left" Height="10" Grid.Row="2" VerticalAlignment="Center" Width="0" />
         <Rectangle x:Name="c_rec" Grid.Column="7" Fill="#FF1BA1E2" HorizontalAlignment="Left" Height="10" Grid.Row="3" VerticalAlignment="Center" Width="0" />
@@ -88,5 +88,13 @@
         <Rectangle x:Name="normal_rec" Grid.Column="11" Fill="#FF1BA1E2" HorizontalAlignment="Left" Height="10" Grid.Row="1" VerticalAlignment="Center" Width="0"/>
         <Rectangle x:Name="suspect_rec" Grid.Column="11" Fill="#FF1BA1E2" HorizontalAlignment="Left" Height="10" Grid.Row="2" VerticalAlignment="Center" Width="0"/>
         <Rectangle x:Name="phato_rec" Grid.Column="11" Fill="#FF1BA1E2" HorizontalAlignment="Left" Height="10" Grid.Row="3" VerticalAlignment="Center" Width="0"/>
+
+        <CheckBox x:Name="cb2" Content="Sort" Grid.Column="9" HorizontalAlignment="Left" Margin="10,6,0,0" Grid.Row="4" VerticalAlignment="Top"/>
+        <CheckBox x:Name="cb1" Content="Exclude No Values" Grid.Column="9" HorizontalAlignment="Left" Margin="10,6,0,0" Grid.Row="6" VerticalAlignment="Top" Grid.ColumnSpan="3"/>
+        <CheckBox x:Name="cb3" Content="Exclude Shift" Grid.Column="9" HorizontalAlignment="Left" Margin="10,6,0,0" Grid.Row="5" VerticalAlignment="Top" Grid.ColumnSpan="3"/>
+        <CheckBox x:Name="cb7" Content="Show Confidence Percentage" Grid.Column="9" HorizontalAlignment="Left" Margin="10,5,0,0" Grid.Row="7" VerticalAlignment="Top" Grid.ColumnSpan="3"/>
+        <CheckBox x:Name="cb6" Content="Most Recommended Only" Grid.Column="9" HorizontalAlignment="Left" Margin="11,4,0,0" Grid.Row="8" VerticalAlignment="Top" Grid.ColumnSpan="3"/>
+        <CheckBox x:Name="fhrClass_cb" Content="FHR Classes" Grid.Column="9" HorizontalAlignment="Left" Margin="10,5,0,0" Grid.Row="9" VerticalAlignment="Top" Grid.ColumnSpan="3" IsChecked="True" />
+        <CheckBox x:Name="nspClass_cb" Content="NSP Classes" Grid.Column="9" HorizontalAlignment="Left" Margin="11,5,0,0" Grid.Row="10" VerticalAlignment="Top" Grid.ColumnSpan="3" IsChecked="True" />
     </Grid>
 </mui:ModernWindow>
