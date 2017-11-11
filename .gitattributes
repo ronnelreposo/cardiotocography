@@ -1,0 +1,23 @@
+*.pdf binary
+
+*.sln binary
+
+*.csproj binary
+
+*.pfx binary
+
+*.config binary
+
+*.dll binary
+
+*.pdb binary
+
+*.dat binary
+
+*.manifest binary
+
+*.deploy binary
+
+*.xml binary
+
+*.application binary
