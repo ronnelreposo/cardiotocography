@@ -88,22 +88,16 @@ namespace cardio
                     ( await WhenAll(record.ProgressedOutputVector) )
                     .ToObservable()
                     .Take(1)
-                    .Subscribe(_ => record.Button.IsEnabled = true));
+                    .Subscribe(_ => enableButton(record.Button)));
 
             sClickToNsp
                 .Subscribe(async record =>
                     ( await WhenAll(record.ProgressedOutputVector) )
                     .ToObservable()
                     .Take(1)
-                    .Subscribe(_ => record.Button.IsEnabled = true));
+                    .Subscribe(_ => enableButton(record.Button)));
 
         } /* end setUpReactiveEngine. */
-
-        Button disableButton (Button button)
-        {
-            button.IsEnabled = false;
-            return button;
-        }
 
         /// <summary>
         /// Encodes TextBox Inputs.
@@ -119,6 +113,7 @@ namespace cardio
             var fm_max = 600;
             var uc_max = 30;
             var dl_max = 20;
+
             return new[] {
                 minmax(lb_convToSec, lb_max, 1),
                 minmax(getDoubleValue(ac_tb), ac_max),
@@ -209,6 +204,18 @@ namespace cardio
 
                 return await ProgressAsync(max, rec_, delta, ( i + 1 ));
             }
+        }
+
+        Button disableButton (Button button)
+        {
+            button.IsEnabled = false;
+            return button;
+        }
+
+        Button enableButton (Button button)
+        {
+            button.IsEnabled = true;
+            return button;
         }
     }
 }
