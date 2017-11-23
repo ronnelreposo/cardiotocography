@@ -45,7 +45,10 @@ namespace cardio
                                                let clearedOutputControlVector =
                                                 from rectangle in outputControlVector
                                                 select rectangle.ResetWidth()
-                                               let normInputs = encodeInputs(inputControlVector, PlaceVal)
+                                               let normInputs =
+                                                encodeInputs(inputControlVector,
+                                                 maxIndexVector: new[] { 5, 30, 600, 30, 20, 1, 5 },
+                                                 minIndexVector: new[] { 1, 0, 0, 0, 0, 0, 0 })
                                                let outputVector = computeVectorOutputs(inputVector: normInputs, placeVal: PlaceVal)
                                                select new
                                                {
@@ -100,30 +103,33 @@ namespace cardio
         } /* end setUpReactiveEngine. */
 
         /// <summary>
-        /// Encodes TextBox Inputs.
+        /// Encodes Inputs.
+        /// Converts the input TextBox value,
+        /// and normalizes using the value using the max and min value derived from index,
+        /// finally rounds off the value to a place value.
         /// </summary>
         /// <param name="inputTexboxVector">Input TextBox vector.</param>
+        /// <param name="maxIndexVector">The max index vector.</param>
+        /// <param name="minIndexVector">The min index vector.</param>
         /// <param name="placeVal">Place value.</param>
         /// <returns>encoded input vector.</returns>
-        double[] encodeInputs (TextBox[] inputTexboxVector, int placeVal = 3)
+        double[] encodeInputs (TextBox[] inputTexboxVector, int[] maxIndexVector, int[] minIndexVector, int placeVal = 3)
         {
-            var lb_convToSec = Round(minToSec(getDoubleValue(lb_tb)), placeVal);
-            var lb_max = 5;
-            var ac_max = 30;
-            var fm_max = 600;
-            var uc_max = 30;
-            var dl_max = 20;
-
             return new[] {
-                minmax(lb_convToSec, lb_max, 1),
-                minmax(getDoubleValue(ac_tb), ac_max),
-                minmax(getDoubleValue(fm_tb), fm_max),
-                minmax(getDoubleValue(uc_tb), uc_max),
-                minmax(getDoubleValue(dl_tb), dl_max),
+                Round(minToSec(getDoubleValue(lb_tb)), placeVal),
+                getDoubleValue(ac_tb),
+                getDoubleValue(fm_tb),
+                getDoubleValue(uc_tb),
+                getDoubleValue(dl_tb),
                 getDoubleValue(ds_tb),
-                minmax(getDoubleValue(dp_tb), lb_max)
-            };
-        } /* end normInputs. */
+                getDoubleValue(dp_tb),
+            }
+            .Zip(maxIndexVector, (rawInput, maxIndex) => new { RawInput = rawInput, MaxIndex = maxIndex })
+            .Zip(minIndexVector, (rawAndMax, min) => new { RawInput = rawAndMax.RawInput, MaxIndex = rawAndMax.MaxIndex, MinIndex = min })
+            .Select(input => minmax(input.RawInput, input.MaxIndex, input.MinIndex))
+            .ToArray();
+
+        }/* end normInputs. */
 
         /// <summary>
         /// Computes the output vector.
