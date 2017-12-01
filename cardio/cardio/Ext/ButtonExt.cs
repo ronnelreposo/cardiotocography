@@ -1,4 +1,6 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Windows.Controls;
+using static System.Reactive.Linq.Observable;
 
 namespace cardio.Ext
 {
@@ -33,6 +35,16 @@ namespace cardio.Ext
             button.IsEnabled = true;
 
             return button;
+        }
+
+        /// <summary>
+        /// Converts Button Click to Stream of Button
+        /// </summary>
+        /// <param name="button">The given button</param>
+        /// <returns>The sender button</returns>
+        internal static IObservable<Button> StreamButtonClick(this Button button)
+        {
+            return from evt in FromEventPattern(button, "Click") select evt.Sender as Button;
         }
     }
 }
