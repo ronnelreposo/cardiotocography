@@ -124,9 +124,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\lin\lin.csproj">
-      <Project>{dbcc772b-80e2-4996-8a53-2a9f90f0c232}</Project>
-      <Name>lin</Name>
+    <ProjectReference Include="..\lineal\lineal.csproj">
+      <Project>{39020830-3c20-4558-add6-7afb9b5c5cd8}</Project>
+      <Name>lineal</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

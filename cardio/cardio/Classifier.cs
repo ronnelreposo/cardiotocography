@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using static System.Math;
-using lin;
+using lineal;
 
 namespace cardio
 {
