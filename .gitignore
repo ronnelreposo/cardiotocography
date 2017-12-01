@@ -2,12 +2,6 @@ cardio/\.vs/
 cardio/cardio/bin/
 cardio/cardio/obj/
 
-#ignore lin binary debug files
-cardio/lin/bin/Debug/
-
-#ignore lin object files
-cardio/lin/obj/
-
 #ignore lineal debug files
 cardio/lineal/bin/debug/
 
