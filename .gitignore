@@ -7,3 +7,9 @@ cardio/lin/bin/Debug/
 
 #ignore lin object files
 cardio/lin/obj/
+
+#ignore lineal debug files
+cardio/lineal/bin/debug/
+
+#ignore lineal object files
+cardio/lineal/obj/
