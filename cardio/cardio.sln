@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lin", "lin\lin.csproj", "{D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lineal", "lineal\lineal.csproj", "{39020830-3C20-4558-ADD6-7AFB9B5C5CD8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "linealTest", "linealTest\linealTest.csproj", "{77849FD9-7D59-455A-B4B1-9CE5D0FFD3DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{39020830-3C20-4558-ADD6-7AFB9B5C5CD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39020830-3C20-4558-ADD6-7AFB9B5C5CD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39020830-3C20-4558-ADD6-7AFB9B5C5CD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77849FD9-7D59-455A-B4B1-9CE5D0FFD3DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77849FD9-7D59-455A-B4B1-9CE5D0FFD3DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77849FD9-7D59-455A-B4B1-9CE5D0FFD3DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77849FD9-7D59-455A-B4B1-9CE5D0FFD3DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
