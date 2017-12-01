@@ -32,7 +32,7 @@ namespace cardio
                                       let fhrSelected = fhrClass_cb.IsChecked == true
                                       let nspSelected = nspClass_cb.IsChecked == true
                                       where fhrSelected || nspSelected
-                                      select disableButton(button);
+                                      select button.Disable();
 
             var sClickToClassifyOutputRecord = from button in sClickDisabledButon
                                                let PlaceVal = 3
@@ -91,14 +91,14 @@ namespace cardio
                     ( await WhenAll(record.ProgressedOutputVector) )
                     .ToObservable()
                     .Take(1)
-                    .Subscribe(_ => enableButton(record.Button)));
+                    .Subscribe(_ => record.Button.Enable()));
 
             sClickToNsp
                 .Subscribe(async record =>
                     ( await WhenAll(record.ProgressedOutputVector) )
                     .ToObservable()
                     .Take(1)
-                    .Subscribe(_ => enableButton(record.Button)));
+                    .Subscribe(_ => record.Button.Enable()));
 
         } /* end setUpReactiveEngine. */
 
@@ -210,18 +210,6 @@ namespace cardio
 
                 return await ProgressAsync(max, rec_, delta, ( i + 1 ));
             }
-        }
-
-        Button disableButton (Button button)
-        {
-            button.IsEnabled = false;
-            return button;
-        }
-
-        Button enableButton (Button button)
-        {
-            button.IsEnabled = true;
-            return button;
         }
     }
 }
