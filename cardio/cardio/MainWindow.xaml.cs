@@ -25,10 +25,7 @@ namespace cardio
 
         void setUpReactiveEngine ()
         {
-            var sClassifyClicked = from evt in FromEventPattern(classify_button, "Click")
-                                   select evt.Sender as Button;
-
-            var sClickDisabledButon = from button in sClassifyClicked
+            var sClickDisabledButon = from button in classify_button.StreamButtonClick()
                                       let fhrSelected = fhrClass_cb.IsChecked == true
                                       let nspSelected = nspClass_cb.IsChecked == true
                                       where fhrSelected || nspSelected
