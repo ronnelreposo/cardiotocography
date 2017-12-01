@@ -13,3 +13,9 @@ cardio/lineal/bin/debug/
 
 #ignore lineal object files
 cardio/lineal/obj/
+
+#ignore linealTest object files
+cardio/linealTest/obj/
+
+#ignore linealTest bin debug files
+cardio/linealTest/bin/debug/ 
