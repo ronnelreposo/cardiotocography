@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Controls;
 using static System.Reactive.Linq.Observable;
+using static System.Diagnostics.Contracts.Contract;
 
 namespace cardio.Ext
 {
@@ -16,6 +17,8 @@ namespace cardio.Ext
         /// <returns>button</returns>
         internal static Button Disable (this Button button)
         {
+            Requires(button != null);
+
             if ( !button.IsEnabled ) return button;
 
             button.IsEnabled = false;
@@ -30,6 +33,8 @@ namespace cardio.Ext
         /// <returns>button</returns>
         internal static Button Enable (this Button button)
         {
+            Requires(button != null);
+
             if ( button.IsEnabled ) return button;
 
             button.IsEnabled = true;
@@ -44,6 +49,8 @@ namespace cardio.Ext
         /// <returns>The sender button</returns>
         internal static IObservable<Button> StreamButtonClick(this Button button)
         {
+            Requires(button != null);
+
             return from evt in FromEventPattern(button, "Click") select evt.Sender as Button;
         }
     }
