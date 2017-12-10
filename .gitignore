@@ -12,4 +12,10 @@ cardio/lineal/obj/
 cardio/linealTest/obj/
 
 #ignore linealTest bin debug files
-cardio/linealTest/bin/debug/ 
+cardio/linealTest/bin/debug/
+
+#ignore classifier object files
+cardio/classifier/obj/
+
+#ignore classifier bin debug files
+cardio/classifier/bin/debug/
