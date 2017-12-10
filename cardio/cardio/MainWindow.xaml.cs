@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Shapes;
-using static cardio.Classifier;
+using static classifier.Classifier;
 using static System.Array;
 using static System.Convert;
 using static System.Math;

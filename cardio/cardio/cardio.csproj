@@ -105,7 +105,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Classifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -125,6 +124,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\classifier\classifier.csproj">
+      <Project>{d7066acc-30bf-48d1-8135-60e8140108a6}</Project>
+      <Name>classifier</Name>
+    </ProjectReference>
     <ProjectReference Include="..\lineal\lineal.csproj">
       <Project>{39020830-3c20-4558-add6-7afb9b5c5cd8}</Project>
       <Name>lineal</Name>
