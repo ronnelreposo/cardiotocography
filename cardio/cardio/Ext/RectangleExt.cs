@@ -1,7 +1,11 @@
 ﻿using System.Windows.Shapes;
+using static System.Diagnostics.Contracts.Contract;
 
 namespace cardio.Ext
 {
+    /// <summary>
+    /// Represents a Rectangle Extension
+    /// </summary>
     static class RectangleExt
     {
         /// <summary>
@@ -12,7 +16,10 @@ namespace cardio.Ext
         /// <returns>Rectangle that has changed its width.</returns>
         internal static Rectangle ChangeWidth (this Rectangle rec, double width)
         {
+            Requires(rec != null);
+
             rec.Width = width;
+
             return rec;
         }
 
@@ -24,7 +31,10 @@ namespace cardio.Ext
         /// <returns>resetted rectangle.</returns>
         internal static Rectangle ResetWidth (this Rectangle rec, double defaultWidth = 0)
         {
+            Requires(rec != null);
+
             rec.Width = defaultWidth;
+
             return rec;
         }
     }
