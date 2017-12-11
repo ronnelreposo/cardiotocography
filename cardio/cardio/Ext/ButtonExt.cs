@@ -1,4 +1,8 @@
-﻿using System;
+﻿/// Licensed to Ronnel Reposo under one or more agreements.
+/// Ronnel Reposo licenses this file to you under the MIT license.
+/// See the LICENSE file in the project root for more information.
+
+using System;
 using System.Windows.Controls;
 using static System.Reactive.Linq.Observable;
 using static System.Diagnostics.Contracts.Contract;

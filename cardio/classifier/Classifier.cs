@@ -1,4 +1,8 @@
-﻿using System;
+﻿/// Licensed to Ronnel Reposo under one or more agreements.
+/// Ronnel Reposo licenses this file to you under the MIT license.
+/// See the LICENSE file in the project root for more information.
+
+using System;
 using System.Linq;
 using static System.Math;
 using lineal;
